@@ -1,3 +1,6 @@
-//public class Query {
-//    static String insert = "Insert Into student "
-//}
+public class Query {
+    public static void main(String[] args) {
+//        Main main = new Main();
+//        System.out.println(main.savedName);
+    }
+}

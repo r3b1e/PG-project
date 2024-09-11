@@ -4,12 +4,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import java.util.Random;
 
 public class signup extends JFrame implements ActionListener {
     JButton submitButton;
     JButton resetButton;
     JTextField namefield;
     JTextField emailfield;
+    JTextField mobilefield;  // New mobile field
     JComboBox<String> genderComboBox;
     JPasswordField passwordfield;
     JPasswordField confirmfield;
@@ -23,8 +25,6 @@ public class signup extends JFrame implements ActionListener {
         pgroom.setText("PG ROOM");
         pgroom.setFont(new Font(Font.SERIF, Font.BOLD, 30));
         pgroom.setHorizontalAlignment(JLabel.CENTER);
-
-
 
         // Sign Up Label
         JLabel signupicon = new JLabel();
@@ -59,49 +59,61 @@ public class signup extends JFrame implements ActionListener {
         emailfield.setFont(new Font(Font.SERIF, Font.PLAIN, 14));
         emailfield.setBorder(new RoundedBorder(10)); // Rounded border
 
+        // Mobile Number Label
+        JLabel mobileLabel = new JLabel();
+        mobileLabel.setBounds(20, 170, 100, 30);
+        mobileLabel.setText("Mobile:");
+        mobileLabel.setFont(new Font(Font.SERIF, Font.BOLD, 15));
+
+        // Mobile Number Field with rounded border
+        mobilefield = new JTextField();
+        mobilefield.setBounds(150, 170, 230, 30);
+        mobilefield.setFont(new Font(Font.SERIF, Font.PLAIN, 14));
+        mobilefield.setBorder(new RoundedBorder(10)); // Rounded border
+
         // Gender Label
         JLabel genderLabel = new JLabel();
-        genderLabel.setBounds(20, 170, 100, 30);
+        genderLabel.setBounds(20, 210, 100, 30);
         genderLabel.setText("Gender:");
         genderLabel.setFont(new Font(Font.SERIF, Font.BOLD, 15));
 
         // Gender ComboBox with rounded border
         String[] genders = {"Select", "Male", "Female", "Other"};
         genderComboBox = new JComboBox<>(genders);
-        genderComboBox.setBounds(150, 170, 230, 30);
+        genderComboBox.setBounds(150, 210, 230, 30);
         genderComboBox.setBackground(Color.white);
         genderComboBox.setFont(new Font(Font.SERIF, Font.PLAIN, 14));
         genderComboBox.setBorder(new RoundedBorder(10)); // Rounded border
 
         // Password Label
         JLabel passwordLabel = new JLabel();
-        passwordLabel.setBounds(20, 210, 120, 30);
+        passwordLabel.setBounds(20, 250, 120, 30);
         passwordLabel.setText("Password:");
         passwordLabel.setFont(new Font(Font.SERIF, Font.BOLD, 15));
 
         // Password Field with rounded border
         passwordfield = new JPasswordField();
-        passwordfield.setBounds(150, 210, 230, 30);
+        passwordfield.setBounds(150, 250, 230, 30);
         passwordfield.setFont(new Font(Font.SERIF, Font.PLAIN, 14));
         passwordfield.setBorder(new RoundedBorder(10)); // Rounded border
 
         // Confirm Password Label
         JLabel confirmLabel = new JLabel();
-        confirmLabel.setBounds(20, 250, 150, 30);
+        confirmLabel.setBounds(20, 290, 150, 30);
         confirmLabel.setText("Confirm Password:");
         confirmLabel.setFont(new Font(Font.SERIF, Font.BOLD, 15));
 
         // Confirm Password Field with rounded border
         confirmfield = new JPasswordField();
-        confirmfield.setBounds(150, 250, 230, 30);
+        confirmfield.setBounds(150, 290, 230, 30);
         confirmfield.setFont(new Font(Font.SERIF, Font.PLAIN, 14));
         confirmfield.setBorder(new RoundedBorder(10)); // Rounded border
 
         // Buttons
         submitButton = new JButton("Sign in");
         resetButton = new JButton("Reset");
-        submitButton.setBounds(100, 290, 100, 30);
-        resetButton.setBounds(220, 290, 100, 30);
+        submitButton.setBounds(100, 330, 100, 30);
+        resetButton.setBounds(220, 330, 100, 30);
         resetButton.setBorder(new RoundedBorder(10));
         submitButton.setBorder(new RoundedBorder(10));
         submitButton.setBackground(Color.WHITE);
@@ -112,7 +124,7 @@ public class signup extends JFrame implements ActionListener {
 
         // Set up the frame
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(400, 360);  // Slightly increased height to avoid cut-offs
+        this.setSize(400, 400);  // Increased height to accommodate the mobile number field
         this.setTitle("PG ROOM");
         this.setLayout(null);
         this.setResizable(false);
@@ -124,6 +136,8 @@ public class signup extends JFrame implements ActionListener {
         this.add(namefield);
         this.add(emailLabel);
         this.add(emailfield);
+        this.add(mobileLabel);
+        this.add(mobilefield);   // Added mobile number field
         this.add(genderLabel);
         this.add(genderComboBox);
         this.add(passwordLabel);
@@ -146,16 +160,42 @@ public class signup extends JFrame implements ActionListener {
         if (e.getSource() == submitButton) {
             String name = namefield.getText();
             String email = emailfield.getText();
+            String mobile = mobilefield.getText();  // Get mobile number
             String gender = (String) genderComboBox.getSelectedItem();
             String password = new String(passwordfield.getPassword());
             String confirmPassword = new String(confirmfield.getPassword());
 
-            if (name.isEmpty() || email.isEmpty() || gender.equals("Select") || password.isEmpty() || !password.equals(confirmPassword)) {
+            if (name.isEmpty() || email.isEmpty() || mobile.isEmpty() || gender.equals("Select") || password.isEmpty() || !password.equals(confirmPassword)) {
                 JOptionPane.showMessageDialog(this, "Please fill in all fields correctly.");
+            }
+            else{
+                try {
+                    new dbconnect();
+                    Statement statement = dbconnect.statement;
+                    Connection connection = dbconnect.connection;
+                    ResultSet resultset = statement.executeQuery("SELECT * FROM user");
+                    PreparedStatement pre = connection.prepareStatement(
+                            "INSERT INTO user (userid, username, password, email, mobileno)VALUES (?, ?, ?, ?, ?)"
+                    );
+                    Random random = new Random();
+                    int randomNumber = 100000 + random.nextInt(900000);
+                    pre.setString(1, Integer.toString(randomNumber));
+                    pre.setString(2, name);
+                    pre.setString(3, password);
+                    pre.setString(4, email);
+                    pre.setString(5, mobile);
+                    pre.executeUpdate();
+                    dispose();
+                    new login();
+                }
+                catch(SQLException e1){
+                    e1.printStackTrace();
+                }
             }
         } else if (e.getSource() == resetButton) {
             namefield.setText("");
             emailfield.setText("");
+            mobilefield.setText("");  // Clear mobile field
             genderComboBox.setSelectedIndex(0);
             passwordfield.setText("");
             confirmfield.setText("");

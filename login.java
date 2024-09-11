@@ -110,7 +110,7 @@ public class login extends JFrame implements ActionListener {
                     JOptionPane.showMessageDialog(this, "Login Successful!");
                     istrue = false;
                     this.dispose();
-                    new Home();  // Assuming Home.java is the next screen after login
+                    new StudentInformationPage(resultset.getString("userid"));  // Assuming Home.java is the next screen after login
                 }
 
             }

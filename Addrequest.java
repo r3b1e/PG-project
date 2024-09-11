@@ -7,6 +7,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.sql.*;
+import java.util.Random;
 
 public class Addrequest extends JFrame  implements ActionListener{
     static String FN = "";
@@ -51,9 +52,11 @@ public class Addrequest extends JFrame  implements ActionListener{
     private JTextArea aboutSelfArea;
     private JButton createAccountButton;
     private JButton cencelrequestButton;
+    static String studentid;
 
 
-    public Addrequest() {
+    public Addrequest(String userid) {
+        studentid = userid;
         // Setting up the frame
         setTitle("Add a Request");
         setSize(900, 600);
@@ -462,10 +465,11 @@ public class Addrequest extends JFrame  implements ActionListener{
                             "INSERT INTO students (" +
                                     "id, first_name, last_name, birthdate, age, institute_name, mobile_no, gender, " +
                                     "state, city, pin_code, street_name, distance_college, vacancy, amount, room_typr, " +
-                                    "additional_address, tell_about) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                                    "additional_address, tell_about, studentid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                     );
-
-                    pre.setString(1, "thif");
+                    Random random = new Random();
+                    int randomNumber = 1000 + random.nextInt(9000);
+                    pre.setString(1, Integer.toString(randomNumber));
                     pre.setString(2, firstNameField.getText());
                     pre.setString(3, lastNameField.getText());
                     pre.setString(4, birthdateField.getText());
@@ -507,6 +511,7 @@ public class Addrequest extends JFrame  implements ActionListener{
 
                     pre.setString(17, additionalAddressArea.getText());
                     pre.setString(18, aboutSelfArea.getText());
+                    pre.setString(19, studentid);
                     pre.executeUpdate();
                     JOptionPane.showMessageDialog(this, "Request Added Successful!");
                     dispose();
@@ -567,7 +572,7 @@ public class Addrequest extends JFrame  implements ActionListener{
     }
 
     public static void main(String[] args) {
-        new Addrequest();
+        new Addrequest("789897");
     }
 }
 
