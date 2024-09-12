@@ -8,7 +8,7 @@ public class dbconnect {
             connection = DriverManager.getConnection(
                     "jdbc:mysql://127.0.0.1:3306/db",
                     "root",
-                    "sanju@98"
+                    "*********"
             );
             statement = connection.createStatement();
             ResultSet resultset = statement.executeQuery("select * from user");
