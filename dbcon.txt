@@ -1,0 +1,53 @@
+use db;
+CREATE TABLE signtable (
+    First_Name varchar(50),
+    Last_Name varchar(50),
+    Email varchar(50),
+    Pass varchar(50)
+);
+
+
+select * from signtable;
+select * from user;
+select * from students;
+CREATE DATABASE student_app;
+USE student_app;
+drop table students;
+
+CREATE TABLE students (
+    -- id INT AUTO_INCREMENT PRIMARY KEY,
+    studentid varchar(50),
+    id VARCHAR(50),
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    -- birthdate DATE,
+    birthdate VARCHAR(50),
+    -- age INT,
+    age VARCHAR(50),
+    institute_name VARCHAR(50),
+    mobile_no VARCHAR(50),
+    gender VARCHAR(50),
+    state VARCHAR(50),
+    city VARCHAR(50),
+    pin_code VARCHAR(50),
+    street_name VARCHAR(100),
+    -- distance_college FLOAT,
+    distance_college VARCHAR(50),
+    -- vacancy INT,
+    vacancy VARCHAR(50),
+    -- amount DECIMAL(10, 2),
+    -- amount DECIMAL(10, 2),
+    amount VARCHAR(50),
+    room_typr VARCHAR(50),
+    additional_address VARCHAR(500),
+    tell_about VARCHAR(500)
+    );
+    
+    create table user(userid varchar(50), username varchar(50), password varchar(50), email varchar(50), mobileno varchar(50), message varchar(500) default "null", favorite varchar(500) default "null");
+drop table user;
+select * from user;
+UPDATE user
+SET message = 'null'
+WHERE userid = '789897';
+SET SQL_SAFE_UPDATES = 0;
+truncate table students;
