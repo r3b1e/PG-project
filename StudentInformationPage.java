@@ -71,6 +71,7 @@ public class StudentInformationPage extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == Addrequest) {
+            dispose();
             new Addrequest(studentid);
             // Addrequest logic here
         } else if (e.getSource() == message) {

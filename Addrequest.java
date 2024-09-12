@@ -434,6 +434,7 @@ public class Addrequest extends JFrame  implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == cencelrequestButton){
             dispose();
+            new StudentInformationPage(studentid);
         }
         else if(e.getSource() == createAccountButton){
             if((firstNameField.getText()).equals("First Name") ||
@@ -515,6 +516,8 @@ public class Addrequest extends JFrame  implements ActionListener{
                     pre.executeUpdate();
                     JOptionPane.showMessageDialog(this, "Request Added Successful!");
                     dispose();
+                    new StudentInformationPage(studentid);
+
 
                 } catch (SQLException E) {
                     E.printStackTrace();
