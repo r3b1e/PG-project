@@ -2,163 +2,156 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 
-public class Home extends JFrame implements ActionListener {
-    JMenuBar menuBar;
-    JMenu fileMenu;
-    JMenu editMenu;
-    JMenu helpMenu;
-    JMenuItem Addrequest;
-    JMenuItem message;
-    JMenuItem Favorite;
-    JMenuItem logout;
-    JMenuItem exit;
-    ImageIcon requesticon;
-    ImageIcon messageicon;
-    ImageIcon favoriteicon;
-    ImageIcon logouticon;
-    ImageIcon exiticon;
-    ImageIcon menuicon;
-    ImageIcon editicon;
-    ImageIcon helpicon;
-
-
-    private ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
-        Image img = icon.getImage();  // Get the original image
-        Image resizedImage = img.getScaledInstance(width, height,  java.awt.Image.SCALE_SMOOTH); // Resize the image
-        return new ImageIcon(resizedImage);  // Return the resized image as an icon
-    }
+public class Home extends JFrame {
+    private JPanel sidePanel, contentPanel, headerPanel;
+    private JButton optionsBtn, addRequestBtn, messageBtn, favoriteBtn, logoutBtn, exitBtn, searchBtn;
+    private JLabel titleLabel;
+    private final int SIDE_PANEL_WIDTH = 200;
 
     public Home() {
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(900, 600);
-        this.setTitle("PG ROOM");
-        this.setResizable(false);
+        setTitle("PG ROOM");
+        setSize(1000, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        JLabel rightlable = new JLabel();
-        rightlable.setBounds(0, 0, 450, 600);
-        rightlable.setBackground(Color.black);
-        rightlable.setOpaque(true);
+        // Create header panel
+        createHeaderPanel();
 
-        JLabel leftLabel = new JLabel();
-        leftLabel.setBounds(450, 0, 450, 600);
+        // Create content panel
+        createContentPanel();
 
-// Load and scale the image to fit the JLabel
-//        ImageIcon backgroundImage = new ImageIcon("src/images/Designer.png");
-//        Image img = backgroundImage.getImage();
-//        Image scaledImg = img.getScaledInstance(leftLabel.getWidth(), leftLabel.getHeight(), Image.SCALE_SMOOTH);
-//
-//// Set the scaled image as the icon
-//        ImageIcon scaledIcon = new ImageIcon(scaledImg);
-//        leftLabel.setIcon(scaledIcon);
-//        leftLabel.setOpaque(true); // Optional: use this only if you are setting a background color or need the label to be non-transparent
+        // Create side panel with buttons from old UI
+        createSidePanelWithOldButtons();
 
-// Add the JLabel to your frame or panel
-
-//        requesticon = new ImageIcon("C:\\Users\\sanju\\IdeaProjects\\PGroom\\src\\img.png");
-        requesticon = resizeIcon(new ImageIcon("src/images/Addrequest.png"), 35, 35);
-        messageicon = resizeIcon(new ImageIcon("src/images/Message.png"), 35, 35);
-        favoriteicon = resizeIcon(new ImageIcon("src/images/Favorite.png"), 35, 35);
-        logouticon = resizeIcon(new ImageIcon("src/images/Logout.png"), 35, 35);
-        exiticon = resizeIcon(new ImageIcon("src/images/Exit.png"), 35, 35);
-        menuicon = resizeIcon(new ImageIcon("src/images/Menu.png"), 35, 35);
-        editicon = resizeIcon(new ImageIcon("src/images/Edit.png"), 35, 35);
-        helpicon = resizeIcon(new ImageIcon("src/images/Help.png"), 35, 35);
-
-        // Initialize menu bar and menus
-        menuBar = new JMenuBar();
-        fileMenu = new JMenu("Menu");
-        fileMenu.setIcon(menuicon);
-        fileMenu.setFont(new Font(Font.SERIF, Font.BOLD, 30));
-
-        editMenu = new JMenu("Edit");
-        editMenu.setIcon(editicon);
-        editMenu.setFont(new Font(Font.SERIF, Font.BOLD, 30));
-
-
-        helpMenu = new JMenu("Help");
-        helpMenu.setIcon(helpicon);
-        helpMenu.setFont(new Font(Font.SERIF, Font.BOLD, 30));
-
-
-
-        // Initialize menu items
-        Addrequest = new JMenuItem("MakeRequest");
-        message = new JMenuItem("Message");
-        Favorite = new JMenuItem("Favorite");
-        logout = new JMenuItem("Logout");
-        exit = new JMenuItem("Exit");
-
-        // Apply style to all menu items
-        setMenuItemStyle(Addrequest, requesticon, KeyEvent.VK_A);
-        setMenuItemStyle(message, messageicon, KeyEvent.VK_M);
-        setMenuItemStyle(Favorite, favoriteicon, KeyEvent.VK_F);
-        setMenuItemStyle(logout, logouticon, KeyEvent.VK_L);
-        setMenuItemStyle(exit, exiticon, KeyEvent.VK_E);
-
-        // Add menu items to the file menu
-        fileMenu.add(Addrequest);
-        fileMenu.add(message);
-        fileMenu.add(Favorite);
-        fileMenu.add(logout);
-        fileMenu.add(exit);
-
-        // Add menus to the menu bar
-        menuBar.add(fileMenu);
-        menuBar.add(editMenu);
-        menuBar.add(helpMenu);
-
-        // Set menu bar properties
-        menuBar.setBounds(0, 0, 900, 40);
-        menuBar.setFont(new Font(Font.SERIF, Font.BOLD, 5));
-        menuBar.setVisible(true);
-
-        // Add action listeners
-        Addrequest.addActionListener(this);
-        message.addActionListener(this);
-        Favorite.addActionListener(this);
-        logout.addActionListener(this);
-        exit.addActionListener(this);
-
-        // Add menu bar and labels to the frame
-        this.add(menuBar);
-//        this.add(rightlable);
-//        this.add(leftLabel);
-
-        // Set the frame layout and make it visible
-        this.setLayout(null);
-        this.setVisible(true);
+        setVisible(true);
     }
 
-    // Method to set the style for each menu item
-    private void setMenuItemStyle(JMenuItem menuItem, ImageIcon icon, int mnemonic) {
-        menuItem.setBounds(0, 0, 150, 20);
-        menuItem.setFont(new Font(Font.SERIF, Font.BOLD, 25));
-        menuItem.setIcon(icon);
-        menuItem.setMnemonic(mnemonic);
+    private void createHeaderPanel() {
+        headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(50, 50, 50));
+        headerPanel.setPreferredSize(new Dimension(getWidth(), 50));
+
+        // Create options button
+        optionsBtn = new JButton("Options");
+        optionsBtn.setPreferredSize(new Dimension(100, 30));
+        optionsBtn.setBackground(new Color(200, 200, 200)); // Lighter background for contrast
+        optionsBtn.setForeground(Color.BLACK); // Changed to black for visibility
+        optionsBtn.setFocusPainted(false);
+        optionsBtn.addActionListener(e -> toggleSidePanel());
+
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        leftPanel.setOpaque(false);
+        leftPanel.add(optionsBtn);
+
+        // Create title label
+        titleLabel = new JLabel("PG ROOMS");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Create search button (top-right)
+        searchBtn = new JButton("Search");
+        searchBtn.setPreferredSize(new Dimension(100, 30));
+        searchBtn.setBackground(new Color(200, 200, 200)); // Lighter background for contrast
+        searchBtn.setForeground(Color.BLACK); // Changed to black for visibility
+        searchBtn.setFocusPainted(false);
+        searchBtn.addActionListener(e -> performSearch()); // Action for search
+
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rightPanel.setOpaque(false);
+        rightPanel.add(searchBtn);
+
+        headerPanel.add(leftPanel, BorderLayout.WEST);
+        headerPanel.add(titleLabel, BorderLayout.CENTER);
+        headerPanel.add(rightPanel, BorderLayout.EAST);
+
+        add(headerPanel, BorderLayout.NORTH);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == Addrequest) {
+    private void createContentPanel() {
+        contentPanel = new JPanel();
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setLayout(new BorderLayout());
+
+        add(contentPanel, BorderLayout.CENTER);
+    }
+
+    private void createSidePanelWithOldButtons() {
+        sidePanel = new JPanel();
+        sidePanel.setPreferredSize(new Dimension(SIDE_PANEL_WIDTH, getHeight()));
+        sidePanel.setBackground(new Color(50, 50, 50));
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+
+        addRequestBtn = createSideButton("Make Request", "src/images/Addrequest.png");
+        messageBtn = createSideButton("Message", "src/images/Message.png");
+        favoriteBtn = createSideButton("Favorite", "src/images/Favorite.png");
+        logoutBtn = createSideButton("Logout", "src/images/Logout.png");
+        exitBtn = createSideButton("Exit", "src/images/Exit.png");
+
+        sidePanel.add(Box.createVerticalGlue());
+        sidePanel.add(addRequestBtn);
+        sidePanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        sidePanel.add(messageBtn);
+        sidePanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        sidePanel.add(favoriteBtn);
+        sidePanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        sidePanel.add(logoutBtn);
+        sidePanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        sidePanel.add(exitBtn);
+        sidePanel.add(Box.createVerticalGlue());
+
+        sidePanel.setVisible(false);
+        add(sidePanel, BorderLayout.WEST);
+    }
+
+    private JButton createSideButton(String text, String iconPath) {
+        JButton button = new JButton(text);
+        button.setIcon(resizeIcon(new ImageIcon(iconPath), 24, 24));
+        button.setForeground(Color.WHITE);
+        button.setBackground(new Color(70, 70, 70));
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setMaximumSize(new Dimension(180, 40));
+        button.addActionListener(this::handleButtonAction);
+        return button;
+    }
+
+    private void toggleSidePanel() {
+        sidePanel.setVisible(!sidePanel.isVisible());
+        revalidate();
+        repaint();
+    }
+
+    private void handleButtonAction(ActionEvent e) {
+        if (e.getSource() == addRequestBtn) {
             new Addrequest("738126");
-            // Addrequest logic here
-        } else if (e.getSource() == message) {
+        } else if (e.getSource() == messageBtn) {
             // message logic here
-        } else if (e.getSource() == Favorite) {
+        } else if (e.getSource() == favoriteBtn) {
             // Favorite logic here
-        } else if (e.getSource() == logout) {
-            // logout logic here
-             dispose();
+        } else if (e.getSource() == logoutBtn) {
+            dispose();
             new login();
-
-        } else if (e.getSource() == exit) {
+        } else if (e.getSource() == exitBtn) {
             System.exit(0);
         }
     }
 
+    private void performSearch() {
+        // Logic for search button action
+        JOptionPane.showMessageDialog(this, "Search button clicked");
+    }
+
+    private ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
+        Image img = icon.getImage();
+        Image resizedImage = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        return new ImageIcon(resizedImage);
+    }
+
     public static void main(String[] args) {
-        new Home();
+        SwingUtilities.invokeLater(() -> new Home());
     }
 }

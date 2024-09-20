@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -75,7 +76,7 @@ public class StudentInformationPage extends JFrame implements ActionListener {
             new Addrequest(studentid);
             // Addrequest logic here
         } else if (e.getSource() == message) {
-            // message logic here
+            new message(studentid);
         } else if (e.getSource() == Favorite) {
             // Favorite logic here
         } else if (e.getSource() == logout) {
@@ -90,7 +91,7 @@ public class StudentInformationPage extends JFrame implements ActionListener {
 
     public StudentInformationPage(String userId) {
         // Fetch student data
-         studentid = userId;
+        studentid = userId;
         students = getStudents();
         JLabel pgroom = new JLabel();
         pgroom.setBounds(0, 0, 280, 40);
@@ -268,7 +269,7 @@ public class StudentInformationPage extends JFrame implements ActionListener {
         topPanel.add(scrollPane, BorderLayout.CENTER); // Table in center with scrolling
 
         // Add the panel to the frame
-         this.add(pgroom);
+        this.add(pgroom);
         this.add(topPanel);
 
         // Frame settings
@@ -370,7 +371,7 @@ public class StudentInformationPage extends JFrame implements ActionListener {
             if (isSelected) {
 //              setBackground(list.getSelectionBackground
 
-                        setBackground(list.getSelectionBackground());
+                setBackground(list.getSelectionBackground());
                 setForeground(list.getSelectionForeground());
             } else {
                 setBackground(list.getBackground());
@@ -412,9 +413,9 @@ public class StudentInformationPage extends JFrame implements ActionListener {
                 pre.executeUpdate();
                 JOptionPane.showMessageDialog(this, "Request send Sucessfully");
             }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
 
         } else {
             JOptionPane.showMessageDialog(this, "Please select a student first.");
