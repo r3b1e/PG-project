@@ -11,11 +11,12 @@ import java.util.*;
 import java.util.List;
 
 class Student {
-    String studentID, firstName, lastName, instituteName, number, gender, amount, address, vacancy, roomType, age, distance, tellAbout;
+    String studentID, requestId, firstName, lastName, instituteName, number, gender, amount, address, vacancy, roomType, age, distance, tellAbout;
 
-    public Student(String studentID, String firstName, String lastName, String instituteName, String number, String gender, String amount, String address,
+    public Student(String studentID, String requestId, String firstName, String lastName, String instituteName, String number, String gender, String amount, String address,
                    String vacancy, String roomType, String age, String distance, String tellAbout) {
         this.studentID = studentID;
+        this.requestId = requestId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.instituteName = instituteName;
@@ -188,7 +189,7 @@ public class StudentInformationPage extends JFrame implements ActionListener {
 
         // Table columns
         String[] columns = {
-                "Student ID", "First Name", "Last Name", "Institute Name", "Number", "Gender", "Amount", "Address",
+                "Student ID", "Request ID", "First Name", "Last Name", "Institute Name", "Number", "Gender", "Amount", "Address",
                 "Vacancy", "Room Type", "Age", "Distance", "Tell About"
         };
 
@@ -218,18 +219,19 @@ public class StudentInformationPage extends JFrame implements ActionListener {
 
         // Set preferred column widths for clear visibility (adjust sizes as needed)
         table.getColumnModel().getColumn(0).setPreferredWidth(50); //Student ID
-        table.getColumnModel().getColumn(1).setPreferredWidth(100); // First Name
-        table.getColumnModel().getColumn(2).setPreferredWidth(100); // Last Name
-        table.getColumnModel().getColumn(3).setPreferredWidth(150); // Institute Name
-        table.getColumnModel().getColumn(4).setPreferredWidth(50); // Institute Name
-        table.getColumnModel().getColumn(5).setPreferredWidth(80);  // Gender
-        table.getColumnModel().getColumn(6).setPreferredWidth(80);  // Amount
-        table.getColumnModel().getColumn(7).setPreferredWidth(250); // Address
-        table.getColumnModel().getColumn(8).setPreferredWidth(80);  // Vacancy
-        table.getColumnModel().getColumn(9).setPreferredWidth(100); // Room Type
-        table.getColumnModel().getColumn(10).setPreferredWidth(50);  // Age
-        table.getColumnModel().getColumn(11).setPreferredWidth(100); // Distance
-        table.getColumnModel().getColumn(12).setPreferredWidth(200); // Tell About
+        table.getColumnModel().getColumn(1).setPreferredWidth(20); //request ID
+        table.getColumnModel().getColumn(2).setPreferredWidth(100); // First Name
+        table.getColumnModel().getColumn(3).setPreferredWidth(100); // Last Name
+        table.getColumnModel().getColumn(4).setPreferredWidth(150); // Institute Name
+        table.getColumnModel().getColumn(5).setPreferredWidth(50); // Institute Name
+        table.getColumnModel().getColumn(6).setPreferredWidth(80);  // Gender
+        table.getColumnModel().getColumn(7).setPreferredWidth(80);  // Amount
+        table.getColumnModel().getColumn(8).setPreferredWidth(250); // Address
+        table.getColumnModel().getColumn(9).setPreferredWidth(80);  // Vacancy
+        table.getColumnModel().getColumn(10).setPreferredWidth(100); // Room Type
+        table.getColumnModel().getColumn(11).setPreferredWidth(50);  // Age
+        table.getColumnModel().getColumn(12).setPreferredWidth(100); // Distance
+        table.getColumnModel().getColumn(13).setPreferredWidth(200); // Tell About
 
         table.setRowHeight(30);
         table.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -305,7 +307,7 @@ public class StudentInformationPage extends JFrame implements ActionListener {
     private void populateTableModel(List<Student> students) {
         for (Student student : students) {
             Object[] row = {
-                    student.studentID, student.firstName, student.lastName, student.instituteName, student.number, student.gender, student.amount,
+                    student.studentID,student.requestId, student.firstName, student.lastName, student.instituteName, student.number, student.gender, student.amount,
                     student.address, student.vacancy, student.roomType, student.age, student.distance, student.tellAbout
             };
             tableModel.addRow(row);
@@ -322,6 +324,7 @@ public class StudentInformationPage extends JFrame implements ActionListener {
 
             while (resultSet.next()) {
                 String studentID = resultSet.getString("studentid");
+                String requestId = resultSet.getString("id");
                 String firstName = resultSet.getString("first_name");
                 String lastName = resultSet.getString("last_name");
                 String instituteName = resultSet.getString("institute_name");
@@ -343,7 +346,7 @@ public class StudentInformationPage extends JFrame implements ActionListener {
                 String tellAbout = resultSet.getString("tell_about");
 
                 // Add student data to the list
-                students.add(new Student(studentID, firstName, lastName, instituteName, number, gender, amount, address, vacancy, roomType, age, distance, tellAbout));
+                students.add(new Student(studentID,requestId, firstName, lastName, instituteName, number, gender, amount, address, vacancy, roomType, age, distance, tellAbout));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -415,6 +418,7 @@ public class StudentInformationPage extends JFrame implements ActionListener {
             }
             catch (SQLException e) {
                 e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error While sending the Request");
             }
 
         } else {
@@ -426,8 +430,39 @@ public class StudentInformationPage extends JFrame implements ActionListener {
     private void markAsFavorite() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow != -1) {
-            String studentId = (String) table.getValueAt(selectedRow, 0);  // Assuming ID is in the first column
-            storeStudentIdInDatabase(studentId, "favorite");
+            String requestId = (String) table.getValueAt(selectedRow, 1);  // Assuming ID is in the first column
+//            System.out.println(studentId);
+//            storeStudentIdInDatabase(studentId, "favorite");
+            try{
+                new dbconnect();
+                Connection connection = dbconnect.connection; // Assuming dbconnect.connection is already available
+                Statement statement = connection.createStatement();
+                ResultSet resultset = statement.executeQuery("select * from user");
+                String str = "";
+                while (resultset.next()) {
+                    if(resultset.getString("userid").equals(studentid)){
+                        str = resultset.getString("favorite");
+//                        System.out.println(str);
+                        break;
+                    }
+                }
+                if(str.equals("null")){
+                    str = "";
+                }
+                str = str+"*"+requestId;
+                PreparedStatement pre = connection.prepareStatement(
+                        "UPDATE user SET favorite = ? WHERE userid = ?"
+                );
+                pre.setString(1, str); // Set the new value for the column
+                pre.setString(2, studentid); // Set the condition value
+                pre.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Student added to Favorite");
+            }
+            catch (SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error adding student to Favorite");
+            }
+
         } else {
             JOptionPane.showMessageDialog(this, "Please select a student first.");
         }
