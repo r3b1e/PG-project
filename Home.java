@@ -127,14 +127,14 @@ public class Home extends JFrame {
 
     private void handleButtonAction(ActionEvent e) {
         if (e.getSource() == addRequestBtn) {
-            new Addrequest("738126");
+            new AddRequest("738126");
         } else if (e.getSource() == messageBtn) {
             // message logic here
         } else if (e.getSource() == favoriteBtn) {
             // Favorite logic here
         } else if (e.getSource() == logoutBtn) {
             dispose();
-            new login();
+            new Login();
         } else if (e.getSource() == exitBtn) {
             System.exit(0);
         }

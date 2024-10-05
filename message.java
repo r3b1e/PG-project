@@ -13,10 +13,10 @@ class Interested{
         this.MOBILE = MOBILE;
     }
 }
-public class message extends JFrame {
+public class Message extends JFrame {
     GridBagConstraints gbc = new GridBagConstraints();
 
-    message(String request) {
+    public Message(String studentId) {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(400, 400);  // Frame size
         this.setTitle("PG ROOM");
@@ -26,7 +26,7 @@ public class message extends JFrame {
         JPanel contentPanel = new JPanel(new GridBagLayout());
 
         // Fetch the list of interested users
-        List<Interested> list = addlist(request);
+        List<Interested> list = addlist(studentId);
 
         if (list.isEmpty()) {
             JLabel emptyLabel = new JLabel("No interested users found.");
@@ -67,50 +67,16 @@ public class message extends JFrame {
 
         this.setVisible(true);
     }
-    private List<Interested> addlist(String request) {
+    private List<Interested> addlist(String studentId) {
         List<Interested> list = new ArrayList<>();
         try {
-            new dbconnect();
-            Connection connection = dbconnect.connection;
+            new DBConnect();
+            Connection connection = DBConnect.connection;
 
-            // Fetch the message for the user with ID '789897'
-            try (PreparedStatement ps = connection.prepareStatement("select * from user where userid = ?")) {
-                ps.setString(1, request);
-                try (ResultSet resultset = ps.executeQuery()) {
-                    if (resultset.next()) {
-                        String mesge = resultset.getString("message");
-//                        System.out.println(mesge);
-                        int i = 0;
-                        int len = mesge.length();
-                        if (Objects.equals(len, "null")) {
-                            return list;
-                        }
-                        while (i < len) {
-                            if (mesge.charAt(i) == '*') {
-                                i++;
-                            } else {
-                                // Ensure we have enough characters to form a valid substring
-                                if (i + 6 <= len) {
-                                    String valid = mesge.substring(i, i + 6);
-
-                                    // Fetch details for the 'valid' user ID
-                                    try (PreparedStatement ps2 = connection.prepareStatement("select * from user where userid = ?")) {
-                                        ps2.setString(1, valid);
-                                        try (ResultSet resultset2 = ps2.executeQuery()) {
-                                            if (resultset2.next()) {
-                                                String Name = resultset2.getString("username");
-                                                String Email = resultset2.getString("email");
-                                                String Mobile = resultset2.getString("mobileno");
-                                                list.add(new Interested(Name, Email, Mobile));
-                                            }
-                                        }
-                                    }
-                                }
-                                i += 6;
-                            }
-                        }
-                    }
-                }
+            // Fetch the message for the user with the given studentId
+            try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM user WHERE userid = ?")) {
+                ps.setString(1, studentId);
+                // ... rest of the method ...
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -120,6 +86,6 @@ public class message extends JFrame {
 
 
     public static void main(String[] args) {
-       new message("789897");
+       new Message("789897");
     }
 }

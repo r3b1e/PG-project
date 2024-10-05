@@ -1,87 +1,127 @@
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.Border;  // Add this import
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.sql.*;
+import java.awt.geom.RoundRectangle2D;
 
-public class login extends JFrame implements ActionListener {
+public class Login extends JFrame implements ActionListener {
     JTextField namefield;
     JPasswordField passwordfield;
     JButton loginbutton;
     JButton signupbutton;
+    private Color primaryColor = new Color(41, 128, 185);
+    private Color secondaryColor = new Color(52, 152, 219);
+    private Color accentColor = new Color(230, 126, 34);
 
-    public login() {
-        // Title label for PG Room
-        JLabel pgroom = new JLabel("PG ROOM", JLabel.CENTER);
-        pgroom.setBounds(0, 0, 400, 40);
-        pgroom.setOpaque(true);
-        pgroom.setFont(new Font(Font.SERIF, Font.BOLD, 30));
+    public Login() {
+        // Set custom shape and size for the frame
+        setUndecorated(true);
+        setShape(new RoundRectangle2D.Double(0, 0, 400, 400, 20, 20));
+        setSize(400, 400);
+        setLocationRelativeTo(null);
 
-        // Subtitle for login
-        JLabel loginicon = new JLabel("Login", JLabel.CENTER);
-        loginicon.setBounds(0, 50, 400, 30);
-        loginicon.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        loginicon.setBorder(new EmptyBorder(0, 20, 0, 0));
+        // Create gradient background
+        JPanel backgroundPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                LinearGradientPaint gradient = new LinearGradientPaint(
+                    new Point(0, 0), new Point(0, getHeight()),
+                    new float[]{0f, 1f},
+                    new Color[]{primaryColor, secondaryColor}
+                );
+                g2d.setPaint(gradient);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        backgroundPanel.setLayout(null);
+        setContentPane(backgroundPanel);
 
-        // Username label and field
+        // Header Label
+        JLabel pgroom = new JLabel("PG ROOM");
+        pgroom.setBounds(0, 20, 400, 60);
+        pgroom.setFont(new Font("Arial", Font.BOLD, 36));
+        pgroom.setForeground(Color.WHITE);
+        pgroom.setHorizontalAlignment(JLabel.CENTER);
+
+        // Login Label
+        JLabel loginicon = new JLabel("Login");
+        loginicon.setBounds(0, 80, 400, 40);
+        loginicon.setFont(new Font("Arial", Font.BOLD, 28));
+        loginicon.setForeground(Color.WHITE);
+        loginicon.setHorizontalAlignment(JLabel.CENTER);
+
+        // Username field
         JLabel usernameLabel = new JLabel("Username:");
-        usernameLabel.setBounds(40, 100, 100, 30);
-        usernameLabel.setFont(new Font(Font.SERIF, Font.BOLD, 15));
+        usernameLabel.setBounds(50, 140, 100, 30);
+        usernameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        usernameLabel.setForeground(Color.WHITE);
 
         namefield = new JTextField();
-        namefield.setBounds(150, 100, 200, 30);
-        namefield.setFont(new Font(Font.SERIF, Font.BOLD, 14));
-        namefield.setBorder(createRoundedBorder());
-        namefield.setBorder(new RoundedBorder(10));
+        namefield.setBounds(50, 170, 300, 40);
+        namefield.setFont(new Font("Arial", Font.PLAIN, 14));
+        namefield.setBackground(new Color(255, 255, 255, 220));
+        namefield.setBorder(new RoundedBorder(20));
 
-        // Password label and field
+        // Password field
         JLabel passwordLabel = new JLabel("Password:");
-        passwordLabel.setBounds(40, 150, 100, 30);
-        passwordLabel.setFont(new Font(Font.SERIF, Font.BOLD, 15));
+        passwordLabel.setBounds(50, 220, 100, 30);
+        passwordLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        passwordLabel.setForeground(Color.WHITE);
 
         passwordfield = new JPasswordField();
-        passwordfield.setBounds(150, 150, 200, 30);
-        passwordfield.setFont(new Font(Font.SERIF, Font.PLAIN, 14));
-        passwordfield.setBorder(createRoundedBorder());
-        passwordfield.setBorder(new RoundedBorder(10));
+        passwordfield.setBounds(50, 250, 300, 40);
+        passwordfield.setFont(new Font("Arial", Font.PLAIN, 14));
+        passwordfield.setBackground(new Color(255, 255, 255, 220));
+        passwordfield.setBorder(new RoundedBorder(20));
 
-        // Login button
-        loginbutton = new JButton("Login");
-        loginbutton.setBounds(70, 210, 120, 35);
-        loginbutton.setFont(new Font(Font.SERIF, Font.BOLD, 15));
-        loginbutton.setBorder(createRoundedBorder());
-        loginbutton.setBackground(Color.WHITE);
+        // Buttons
+        loginbutton = createStyledButton("Login", accentColor);
+        signupbutton = createStyledButton("Sign Up", new Color(231, 76, 60));
+        loginbutton.setBounds(50, 310, 140, 50);
+        signupbutton.setBounds(210, 310, 140, 50);
+
         loginbutton.addActionListener(this);
-        loginbutton.setBorder(new RoundedBorder(10));
-
-        signupbutton = new JButton("Sign Up");
-        signupbutton.setBounds(200, 210, 120, 35);
-        signupbutton.setFont(new Font(Font.SERIF, Font.BOLD, 15));
-        signupbutton.setBorder(createRoundedBorder());
-        signupbutton.setBackground(Color.WHITE);
         signupbutton.addActionListener(this);
-        signupbutton.setBorder(new RoundedBorder(10));
 
-        // Adding components to the frame
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(400, 300);
-        this.setTitle("PG ROOM");
-        this.setLayout(null);
-        this.add(pgroom);
-        this.add(loginicon);
-        this.add(usernameLabel);
-        this.add(namefield);
-        this.add(passwordLabel);
-        this.add(passwordfield);
-        this.add(loginbutton);
-        this.add(signupbutton);
-        this.setVisible(true);
+        // Close button
+        JButton closeButton = createStyledButton("X", new Color(231, 76, 60));
+        closeButton.setBounds(350, 10, 40, 40);
+        closeButton.addActionListener(e -> System.exit(0));
+
+        // Add components
+        add(pgroom);
+        add(loginicon);
+        add(usernameLabel);
+        add(namefield);
+        add(passwordLabel);
+        add(passwordfield);
+        add(loginbutton);
+        add(signupbutton);
+        add(closeButton);
+
+        // Set frame properties
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("PG ROOM");
+        setResizable(false);
 
         // Set frame icon
         ImageIcon pgimage = new ImageIcon("pg.png");
-        this.setIconImage(pgimage.getImage());
+        setIconImage(pgimage.getImage());
+
+        setVisible(true);
+    }
+
+    private JButton createStyledButton(String text, Color bgColor) {
+        JButton button = new JButton(text);
+        button.setBackground(bgColor);
+        button.setForeground(Color.WHITE);
+        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setBorder(new RoundedBorder(25));
+        button.setFocusPainted(false);
+        return button;
     }
 
     // Method to create rounded borders for text fields and buttons
@@ -94,41 +134,61 @@ public class login extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Main main = new Main();
         String name = namefield.getText();
         String password = new String(passwordfield.getPassword());
         boolean istrue = true;
         if (e.getSource() == loginbutton) {
-            try{
-                new dbconnect();
-                Statement statement = dbconnect.statement;
-                Connection connection = dbconnect.connection;
-                ResultSet resultset = statement.executeQuery("select * from user");
+            try {
+                new DBConnect();
+                Statement statement = DBConnect.statement;
+                Connection connection = DBConnect.connection;
+                ResultSet resultset = statement.executeQuery("SELECT * FROM user");
 
-            while(resultset.next() && istrue){
-                if (name.equals(resultset.getString("username")) && password.equals(resultset.getString("password"))){
-                    JOptionPane.showMessageDialog(this, "Login Successful!");
-                    istrue = false;
-                    this.dispose();
-                    new StudentInformationPage(resultset.getString("userid"));  // Assuming Home.java is the next screen after login
+                while (resultset.next() && istrue) {
+                    if (name.equals(resultset.getString("username")) && password.equals(resultset.getString("password"))) {
+                        JOptionPane.showMessageDialog(this, "Login Successful!");
+                        istrue = false;
+                        this.dispose();
+                        new StudentInformationPage(resultset.getString("userid"));
+                    }
                 }
-
-            }
-            }
-            catch(SQLException e1){
+            } catch (SQLException e1) {
                 e1.printStackTrace();
+            } finally {
+                // Close resources (resultset, statement, connection) here
             }
-             if(istrue) {
-                 JOptionPane.showMessageDialog(this, "Invalid username or password. Please try again.");
-             }
+            if (istrue) {
+                JOptionPane.showMessageDialog(this, "Invalid username or password. Please try again.");
+            }
         }
-        if(e.getSource()==signupbutton){
+        if (e.getSource() == signupbutton) {
             dispose();
-           new signup();
+            new Signup();
         }
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new login());
+        SwingUtilities.invokeLater(() -> new Login());
+    }
+}
+
+// Make sure the RoundedBorder class is defined in this file or properly imported
+class RoundedBorder implements Border {
+    private int radius;
+
+    RoundedBorder(int radius) {
+        this.radius = radius;
+    }
+
+    public Insets getBorderInsets(Component c) {
+        return new Insets(this.radius+1, this.radius+1, this.radius+2, this.radius);
+    }
+
+    public boolean isBorderOpaque() {
+        return true;
+    }
+
+    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+        g.drawRoundRect(x, y, width-1, height-1, radius, radius);
     }
 }

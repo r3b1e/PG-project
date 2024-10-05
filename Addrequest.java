@@ -9,7 +9,7 @@ import java.awt.event.ItemListener;
 import java.sql.*;
 import java.util.Random;
 
-public class Addrequest extends JFrame  implements ActionListener{
+public class AddRequest extends JFrame  implements ActionListener{
     static String FN = "";
     static String LN = "";
     static String Email = "";
@@ -52,11 +52,11 @@ public class Addrequest extends JFrame  implements ActionListener{
     private JTextArea aboutSelfArea;
     private JButton createAccountButton;
     private JButton cencelrequestButton;
-    static String studentid;
+    private String studentId;
 
 
-    public Addrequest(String userid) {
-        studentid = userid;
+    public AddRequest(String studentId) {
+        this.studentId = studentId;
         // Setting up the frame
         setTitle("Add a Request");
         setSize(900, 600);
@@ -399,14 +399,7 @@ public class Addrequest extends JFrame  implements ActionListener{
         gbc.gridy++;
         formPanel.add(termsCheckBox, gbc);
 
-        cencelrequestButton = new JButton("Cencel Request");
-        cencelrequestButton.setBackground(new Color(110, 172, 218));
-        cencelrequestButton.setForeground(Color.WHITE);
-        gbc.gridy++;
-        formPanel.add(cencelrequestButton, gbc);
-        cencelrequestButton.addActionListener(this);
-
-        // Create Make button
+        // Make Request button
         createAccountButton = new JButton("Make Request");
         createAccountButton.setBackground(new Color(110, 172, 218));
         createAccountButton.setForeground(Color.WHITE);
@@ -414,6 +407,13 @@ public class Addrequest extends JFrame  implements ActionListener{
         formPanel.add(createAccountButton, gbc);
         createAccountButton.addActionListener(this);
 
+        // Cancel Request button
+        cencelrequestButton = new JButton("Cancel Request");
+        cencelrequestButton.setBackground(new Color(110, 172, 218));
+        cencelrequestButton.setForeground(Color.WHITE);
+        gbc.gridy++;
+        formPanel.add(cencelrequestButton, gbc);
+        cencelrequestButton.addActionListener(this);
 
         // Scroll Pane with smooth scrolling and increased speed
         JScrollPane scrollPane = new JScrollPane(formPanel);
@@ -434,7 +434,7 @@ public class Addrequest extends JFrame  implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == cencelrequestButton){
             dispose();
-            new StudentInformationPage(studentid);
+            new StudentInformationPage(studentId);
         }
         else if(e.getSource() == createAccountButton){
             if((firstNameField.getText()).equals("First Name") ||
@@ -458,9 +458,9 @@ public class Addrequest extends JFrame  implements ActionListener{
           else {
 
                 try {
-                    new dbconnect();
-                    Statement statement = dbconnect.statement;
-                    Connection connection = dbconnect.connection;
+                    new DBConnect();
+                    Statement statement = DBConnect.statement;
+                    Connection connection = DBConnect.connection;
                     ResultSet resultset = statement.executeQuery("SELECT * FROM students");
                     PreparedStatement pre = connection.prepareStatement(
                             "INSERT INTO students (" +
@@ -512,11 +512,11 @@ public class Addrequest extends JFrame  implements ActionListener{
 
                     pre.setString(17, additionalAddressArea.getText());
                     pre.setString(18, aboutSelfArea.getText());
-                    pre.setString(19, studentid);
+                    pre.setString(19, studentId);
                     pre.executeUpdate();
                     JOptionPane.showMessageDialog(this, "Request Added Successful!");
                     dispose();
-                    new StudentInformationPage(studentid);
+                    new StudentInformationPage(studentId);
 
 
                 } catch (SQLException E) {
@@ -575,7 +575,6 @@ public class Addrequest extends JFrame  implements ActionListener{
     }
 
     public static void main(String[] args) {
-        new Addrequest("789897");
+        new AddRequest("789897");
     }
 }
-

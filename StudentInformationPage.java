@@ -1,495 +1,330 @@
-
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.sql.*;
-import java.util.*;
+import java.awt.event.*;
+import javax.swing.border.*;
+import java.util.ArrayList;
 import java.util.List;
+import javax.swing.border.EmptyBorder;
 
-class Student {
-    String studentID, requestId, firstName, lastName, instituteName, number, gender, amount, address, vacancy, roomType, age, distance, tellAbout;
+public class StudentInformationPage extends JFrame {
+    private JPanel headerPanel, searchPanel, filterPanel, contentPanel;
+    private JScrollPane scrollPane;
+    private JTextField searchField;
+    private JButton searchButton, filterButton, messageButton, profileButton, menuButton, addRequestButton;
+    private JComboBox<String> locationFilter, priceFilter, roomTypeFilter;
+    private List<PGCard> pgCards;
+    private JPanel slidePanel;
+    private Timer slideTimer;
+    private boolean isPanelVisible = false;
+    private Color primaryColor = new Color(41, 128, 185);
+    private Color secondaryColor = new Color(52, 152, 219);
+    private String studentId;
 
-    public Student(String studentID, String requestId, String firstName, String lastName, String instituteName, String number, String gender, String amount, String address,
-                   String vacancy, String roomType, String age, String distance, String tellAbout) {
-        this.studentID = studentID;
-        this.requestId = requestId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.instituteName = instituteName;
-        this.number = number;
-        this.gender = gender;
-        this.amount = amount;
-        this.address = address;
-        this.vacancy = vacancy;
-        this.roomType = roomType;
-        this.age = age;
-        this.distance = distance;
-        this.tellAbout = tellAbout;
-    }
-}
+    public StudentInformationPage(String studentId) {
+        this.studentId = studentId;
+        setTitle("PG Accommodation - Home");
+        setSize(1000, 700);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        setResizable(false); // Prevent window resizing
 
-public class StudentInformationPage extends JFrame implements ActionListener {
-    static String studentid;
-    JMenuBar menuBar;
-    JMenu fileMenu;
-    JMenu editMenu;
-    JMenu helpMenu;
-    JMenuItem Addrequest;
-    JMenuItem message;
-    JMenuItem Favorite;
-    JMenuItem logout;
-    JMenuItem exit;
-    ImageIcon requesticon;
-    ImageIcon messageicon;
-    ImageIcon favoriteicon;
-    ImageIcon logouticon;
-    ImageIcon exiticon;
-    ImageIcon menuicon;
-    ImageIcon editicon;
-    ImageIcon helpicon;
-    private JTable table;
-    private DefaultTableModel tableModel;
-    private JComboBox<String> instituteComboBox;
-    private List<Student> students;
-    private JButton interestedButton, favoriteButton, searchButton;
+        createHeaderPanel();
+        createSearchPanel();
+        createFilterPanel();
+        createContentPanel();
+        createSlidePanel();
 
-    private ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
-        Image img = icon.getImage();  // Get the original image
-        Image resizedImage = img.getScaledInstance(width, height,  java.awt.Image.SCALE_SMOOTH); // Resize the image
-        return new ImageIcon(resizedImage);  // Return the resized image as an icon
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(searchPanel, BorderLayout.NORTH);
+        centerPanel.add(scrollPane, BorderLayout.CENTER);
+
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+
+        add(mainPanel, BorderLayout.CENTER);
+        add(slidePanel, BorderLayout.WEST);
+        slidePanel.setVisible(false);
+
+        setLocationRelativeTo(null);
+        setVisible(true);
     }
 
-    private void setMenuItemStyle(JMenuItem menuItem, ImageIcon icon, int mnemonic) {
-        menuItem.setBounds(0, 0, 150, 20);
-        menuItem.setFont(new Font(Font.SERIF, Font.BOLD, 25));
-        menuItem.setIcon(icon);
-        menuItem.setMnemonic(mnemonic);
-    }
+    private void createHeaderPanel() {
+        headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(primaryColor);
+        headerPanel.setPreferredSize(new Dimension(1000, 60));
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == Addrequest) {
-            dispose();
-            new Addrequest(studentid);
-            // Addrequest logic here
-        } else if (e.getSource() == message) {
-            new message(studentid);
-        } else if (e.getSource() == Favorite) {
-            // Favorite logic here
-        } else if (e.getSource() == logout) {
-            // logout logic here
-            dispose();
-            new login();
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        leftPanel.setOpaque(false);
+        menuButton = createGradientButton("☰ Menu", primaryColor, secondaryColor);
+        menuButton.addActionListener(e -> toggleSlidePanel());
+        leftPanel.add(menuButton);
 
-        } else if (e.getSource() == exit) {
-            System.exit(0);
-        }
-    }
+        JLabel titleLabel = new JLabel("PG Accommodation");
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setHorizontalAlignment(JLabel.CENTER);
 
-    public StudentInformationPage(String userId) {
-        // Fetch student data
-        studentid = userId;
-        students = getStudents();
-        JLabel pgroom = new JLabel();
-        pgroom.setBounds(0, 0, 280, 40);
-//        pgroom.setBackground(Color.CYAN);
-        pgroom.setOpaque(true);
-//        pgroom.setText("PG ROOM");
-        pgroom.setFont(new Font(Font.SERIF, Font.BOLD, 30));
-        pgroom.setHorizontalAlignment(JLabel.CENTER);
-
-        requesticon = resizeIcon(new ImageIcon("src/images/Addrequest.png"), 35, 35);
-        messageicon = resizeIcon(new ImageIcon("src/images/Message.png"), 35, 35);
-        favoriteicon = resizeIcon(new ImageIcon("src/images/Favorite.png"), 35, 35);
-        logouticon = resizeIcon(new ImageIcon("src/images/Logout.png"), 35, 35);
-        exiticon = resizeIcon(new ImageIcon("src/images/Exit.png"), 35, 35);
-        menuicon = resizeIcon(new ImageIcon("src/images/Menu.png"), 25, 25);
-        editicon = resizeIcon(new ImageIcon("src/images/Edit.png"), 25, 25);
-        helpicon = resizeIcon(new ImageIcon("src/images/Help.png"), 25, 25);
-
-        // Initialize menu bar and menus
-        menuBar = new JMenuBar();
-        fileMenu = new JMenu("Menu");
-        fileMenu.setIcon(menuicon);
-        fileMenu.setFont(new Font(Font.SERIF, Font.BOLD, 25));
-
-        editMenu = new JMenu("Edit");
-        editMenu.setIcon(editicon);
-        editMenu.setFont(new Font(Font.SERIF, Font.BOLD, 25));
-
-
-        helpMenu = new JMenu("Help");
-        helpMenu.setIcon(helpicon);
-        helpMenu.setFont(new Font(Font.SERIF, Font.BOLD, 25));
-
-
-
-        // Initialize menu items
-        Addrequest = new JMenuItem("MakeRequest");
-        message = new JMenuItem("Message");
-        Favorite = new JMenuItem("Favorite");
-        logout = new JMenuItem("Logout");
-        exit = new JMenuItem("Exit");
-
-        // Apply style to all menu items
-        setMenuItemStyle(Addrequest, requesticon, KeyEvent.VK_A);
-        setMenuItemStyle(message, messageicon, KeyEvent.VK_M);
-        setMenuItemStyle(Favorite, favoriteicon, KeyEvent.VK_F);
-        setMenuItemStyle(logout, logouticon, KeyEvent.VK_L);
-        setMenuItemStyle(exit, exiticon, KeyEvent.VK_E);
-
-        // Add menu items to the file menu
-        fileMenu.add(Addrequest);
-        fileMenu.add(message);
-        fileMenu.add(Favorite);
-        fileMenu.add(logout);
-        fileMenu.add(exit);
-
-        // Add menus to the menu bar
-        menuBar.add(fileMenu);
-        menuBar.add(editMenu);
-        menuBar.add(helpMenu);
-
-        // Set menu bar properties
-        menuBar.setBounds(0, 0, 300, 40);
-        menuBar.setFont(new Font(Font.SERIF, Font.BOLD, 5));
-        menuBar.setVisible(true);
-
-        // Add action listeners
-        Addrequest.addActionListener(this);
-        message.addActionListener(this);
-        Favorite.addActionListener(this);
-        logout.addActionListener(this);
-        exit.addActionListener(this);
-
-        // Add menu bar and labels to the frame
-        pgroom.add(menuBar);
-
-        // Get unique institute names
-        Set<String> institutes = new HashSet<>();
-        institutes.add(""); // Placeholder for ComboBox
-        for (Student student : students) {
-            institutes.add(student.instituteName);
-        }
-
-        // Create ComboBox for institute names with a placeholder and increase the width
-        instituteComboBox = new JComboBox<>(institutes.toArray(new String[0]));
-        instituteComboBox.setRenderer(new ComboBoxRenderer("Select Institute"));
-        instituteComboBox.setSelectedIndex(-1); // Ensure placeholder is displayed initially
-        instituteComboBox.setPreferredSize(new Dimension(250, 30)); // Set preferred width of the ComboBox
-
-        // Create a Search Button
-        JButton searchButton = new JButton("Search");
-        searchButton.addActionListener(e -> filterTableByInstitute());
-//        searchButton.setBounds(10, 20, 30, 40);
-
-        // Table columns
-        String[] columns = {
-                "Student ID", "Request ID", "First Name", "Last Name", "Institute Name", "Number", "Gender", "Amount", "Address",
-                "Vacancy", "Room Type", "Age", "Distance", "Tell About"
-        };
-
-        // Table model
-        tableModel = new DefaultTableModel(columns, 0);
-
-        // Populate table model with student data
-        populateTableModel(students);
-
-        // Create JTable with the data
-        table = new JTable(tableModel) {
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        rightPanel.setOpaque(false);
+        addRequestButton = createGradientButton("Add Request", primaryColor, secondaryColor);
+        addRequestButton.addActionListener(new ActionListener() {
             @Override
-            public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-                Component c = super.prepareRenderer(renderer, row, column);
-                if (!isRowSelected(row)) {
-                    c.setBackground(row % 2 == 0 ? new Color(13, 34, 61) : new Color(23, 42, 58)); // Alternate row colors
-                    c.setForeground(Color.WHITE); // White text
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Add Request button clicked"); // Debug print
+                openAddRequestPage();
+            }
+        });
+        rightPanel.add(addRequestButton);
+
+        headerPanel.add(leftPanel, BorderLayout.WEST);
+        headerPanel.add(titleLabel, BorderLayout.CENTER);
+        headerPanel.add(rightPanel, BorderLayout.EAST);
+    }
+
+    private void toggleSlidePanel() {
+        if (isPanelVisible) {
+            // Hide the panel
+            slideTimer = new Timer(10, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (slidePanel.getWidth() > 0) {
+                        slidePanel.setPreferredSize(new Dimension(slidePanel.getWidth() - 10, getHeight()));
+                        revalidate();
+                        repaint();
+                    } else {
+                        ((Timer)e.getSource()).stop();
+                        slidePanel.setVisible(false);
+                        isPanelVisible = false;
+                    }
                 }
-                if (column == 0 || column == 1) {
-                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.GRAY)); // Border between columns
-                } else {
-                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(1, 0, 1, 1, Color.GRAY)); // Other column borders
+            });
+        } else {
+            // Show the panel
+            slidePanel.setPreferredSize(new Dimension(0, getHeight()));
+            slidePanel.setVisible(true);
+            slideTimer = new Timer(10, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (slidePanel.getWidth() < 200) {
+                        slidePanel.setPreferredSize(new Dimension(slidePanel.getWidth() + 10, getHeight()));
+                        revalidate();
+                        repaint();
+                    } else {
+                        ((Timer)e.getSource()).stop();
+                        isPanelVisible = true;
+                    }
                 }
-                return c;
+            });
+        }
+        slideTimer.start();
+    }
+
+    private void createSearchPanel() {
+        searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        searchPanel.setBackground(secondaryColor);
+        searchPanel.setPreferredSize(new Dimension(getWidth(), 60));
+
+        searchField = new JTextField(30);
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(primaryColor, 2),
+            BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+
+        searchButton = createGradientButton("Search", new Color(46, 204, 113), new Color(39, 174, 96));
+        filterButton = createGradientButton("Filters", new Color(230, 126, 34), new Color(211, 84, 0));
+
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+        searchPanel.add(filterButton);
+
+        filterButton.addActionListener(e -> toggleFilterPanel());
+    }
+
+    private void createFilterPanel() {
+        filterPanel = new JPanel();
+        filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.Y_AXIS));
+        filterPanel.setBackground(new Color(236, 240, 241));
+        filterPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel filterLabel = new JLabel("Filters");
+        filterLabel.setFont(new Font("Arial", Font.BOLD, 18));
+
+        locationFilter = new JComboBox<>(new String[]{"All Locations", "Location 1", "Location 2", "Location 3"});
+        priceFilter = new JComboBox<>(new String[]{"All Prices", "Under $500", "$500 - $1000", "Over $1000"});
+        roomTypeFilter = new JComboBox<>(new String[]{"All Types", "Single", "Double", "Triple"});
+
+        filterPanel.add(filterLabel);
+        filterPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        filterPanel.add(new JLabel("Location:"));
+        filterPanel.add(locationFilter);
+        filterPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        filterPanel.add(new JLabel("Price Range:"));
+        filterPanel.add(priceFilter);
+        filterPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        filterPanel.add(new JLabel("Room Type:"));
+        filterPanel.add(roomTypeFilter);
+
+        filterPanel.setVisible(false);
+    }
+
+    private void createContentPanel() {
+        contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setBackground(Color.WHITE);
+
+        pgCards = new ArrayList<>();
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        // Add sample PG cards (replace with actual data later)
+        for (int i = 0; i < 12; i++) {
+            PGCard card = new PGCard("PG Name " + (i + 1), "Location " + (i + 1), "$" + (500 + i * 100), "Single");
+            pgCards.add(card);
+            gbc.gridx = i % 3;
+            gbc.gridy = i / 3;
+            contentPanel.add(card, gbc);
+        }
+
+        scrollPane = new JScrollPane(contentPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+    }
+
+    private void toggleFilterPanel() {
+        if (filterPanel.isVisible()) {
+            remove(filterPanel);
+            filterPanel.setVisible(false);
+        } else {
+            add(filterPanel, BorderLayout.WEST);
+            filterPanel.setVisible(true);
+        }
+        revalidate();
+        repaint();
+    }
+
+    private void createSlidePanel() {
+        slidePanel = new JPanel();
+        slidePanel.setLayout(new BoxLayout(slidePanel, BoxLayout.Y_AXIS));
+        slidePanel.setBackground(new Color(44, 62, 80));
+        slidePanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        slidePanel.setPreferredSize(new Dimension(0, getHeight()));
+
+        String[] options = {"Help", "Messages", "Log Out"};
+        for (String option : options) {
+            JButton button = createGradientButton(option, primaryColor, secondaryColor);
+            button.setAlignmentX(Component.LEFT_ALIGNMENT);
+            button.setMaximumSize(new Dimension(Integer.MAX_VALUE, button.getPreferredSize().height));
+            button.addActionListener(e -> handleSlideMenuOption(option));
+            slidePanel.add(button);
+            slidePanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        }
+
+        slidePanel.setVisible(false);
+    }
+
+    private void handleSlideMenuOption(String option) {
+        switch (option) {
+            case "Help":
+                // Implement help functionality
+                JOptionPane.showMessageDialog(this, "Help functionality to be implemented.", "Help", JOptionPane.INFORMATION_MESSAGE);
+                break;
+            case "Messages":
+                // Implement messages functionality
+                JOptionPane.showMessageDialog(this, "Messages functionality to be implemented.", "Messages", JOptionPane.INFORMATION_MESSAGE);
+                break;
+            case "Log Out":
+                // Implement logout functionality
+                int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to log out?", "Log Out", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    // Perform logout actions here
+                    dispose();
+                    new Login(); // Assuming you have a Login class to return to the login screen
+                }
+                break;
+        }
+    }
+
+    private JButton createGradientButton(String text, Color color1, Color color2) {
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setPaint(new GradientPaint(
+                    new Point(0, 0), 
+                    color1, 
+                    new Point(0, getHeight()), 
+                    color2));
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.dispose();
+
+                super.paintComponent(g);
             }
         };
-
-        // Set preferred column widths for clear visibility (adjust sizes as needed)
-        table.getColumnModel().getColumn(0).setPreferredWidth(50); //Student ID
-        table.getColumnModel().getColumn(1).setPreferredWidth(20); //request ID
-        table.getColumnModel().getColumn(2).setPreferredWidth(100); // First Name
-        table.getColumnModel().getColumn(3).setPreferredWidth(100); // Last Name
-        table.getColumnModel().getColumn(4).setPreferredWidth(150); // Institute Name
-        table.getColumnModel().getColumn(5).setPreferredWidth(50); // Institute Name
-        table.getColumnModel().getColumn(6).setPreferredWidth(80);  // Gender
-        table.getColumnModel().getColumn(7).setPreferredWidth(80);  // Amount
-        table.getColumnModel().getColumn(8).setPreferredWidth(250); // Address
-        table.getColumnModel().getColumn(9).setPreferredWidth(80);  // Vacancy
-        table.getColumnModel().getColumn(10).setPreferredWidth(100); // Room Type
-        table.getColumnModel().getColumn(11).setPreferredWidth(50);  // Age
-        table.getColumnModel().getColumn(12).setPreferredWidth(100); // Distance
-        table.getColumnModel().getColumn(13).setPreferredWidth(200); // Tell About
-
-        table.setRowHeight(30);
-        table.setFont(new Font("Arial", Font.PLAIN, 14));
-        table.setGridColor(new Color(23, 42, 58)); // Prussian Blue
-
-        // Set up scroll panes for both vertical and horizontal scrolling
-        JScrollPane scrollPane = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scrollPane.setPreferredSize(new Dimension(800, 400)); // Set a fixed size
-
-        // Layout the comboBox, search button, and table
-        interestedButton = new JButton("Interested");
-        favoriteButton = new JButton("Favorite");
-        searchButton = new JButton("Search");
-
-        // Add action listeners to the buttons
-        interestedButton.addActionListener(e -> markAsInterested());
-        favoriteButton.addActionListener(e -> markAsFavorite());
-        searchButton.addActionListener(e -> filterTableByInstitute());
-
-        // Create a search panel with ComboBox and buttons
-        JPanel searchPanel = new JPanel();
-        searchPanel.add(instituteComboBox); // ComboBox for selecting institute
-        searchPanel.add(searchButton);      // Search button
-        searchPanel.add(interestedButton);  // Interested button next to search
-        searchPanel.add(favoriteButton);    // Favorite button next to interested
-
-        // Create a top panel to hold the search panel and table
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(searchPanel, BorderLayout.NORTH);  // Add search panel to the top
-        topPanel.add(scrollPane, BorderLayout.CENTER);  // Table in center with scrolling
-
-        // Add the panel to the frame
-        this.add(topPanel);
-//        dd search panel to the top
-
-        // Add table to the center
-        topPanel.add(scrollPane, BorderLayout.CENTER); // Table in center with scrolling
-
-        // Add the panel to the frame
-        this.add(pgroom);
-        this.add(topPanel);
-
-        // Frame settings
-        this.setTitle("Student Information");
-//        this.setSize(900, 600);
-        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLocationRelativeTo(null);
-        this.setVisible(true);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setOpaque(false);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        return button;
     }
 
-    private void filterTableByInstitute() {
-        String selectedInstitute = (String) instituteComboBox.getSelectedItem();
+    private class PGCard extends JPanel {
+        public PGCard(String name, String location, String price, String roomType) {
+            setLayout(new BorderLayout());
+            setPreferredSize(new Dimension(280, 200));
+            setBackground(Color.WHITE);
+            setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(189, 195, 199), 1),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+            ));
 
-        if (selectedInstitute == null || selectedInstitute.equals("")) {
-            // Show all students if no specific institute is chosen
-            populateTableModel(students);
-        } else {
-            List<Student> filteredStudents = new ArrayList<>();
-            for (Student student : students) {
-                // Check for null instituteName before comparing
-                if (student.instituteName != null && student.instituteName.equals(selectedInstitute)) {
-                    filteredStudents.add(student);
-                }
-            }
+            JLabel nameLabel = new JLabel(name);
+            nameLabel.setFont(new Font("Arial", Font.BOLD, 18));
+            nameLabel.setForeground(new Color(41, 128, 185));
 
-            // Clear table and populate with filtered students
-            tableModel.setRowCount(0);
-            populateTableModel(filteredStudents);
+            JPanel infoPanel = new JPanel(new GridLayout(3, 1, 5, 5));
+            infoPanel.setOpaque(false);
+            infoPanel.add(createInfoLabel("Location: " + location, new Color(52, 152, 219)));
+            infoPanel.add(createInfoLabel("Price: " + price, new Color(46, 204, 113)));
+            infoPanel.add(createInfoLabel("Room Type: " + roomType, new Color(230, 126, 34)));
+
+            // Changed button text from "View Details" to "Interested"
+            JButton interestedButton = createGradientButton("Interested", primaryColor, secondaryColor);
+            interestedButton.setPreferredSize(new Dimension(280, 30));
+
+            add(nameLabel, BorderLayout.NORTH);
+            add(infoPanel, BorderLayout.CENTER);
+            add(interestedButton, BorderLayout.SOUTH);
+        }
+
+        private JLabel createInfoLabel(String text, Color color) {
+            JLabel label = new JLabel(text);
+            label.setForeground(color);
+            label.setFont(new Font("Arial", Font.PLAIN, 14));
+            return label;
         }
     }
 
-    private void populateTableModel(List<Student> students) {
-        for (Student student : students) {
-            Object[] row = {
-                    student.studentID,student.requestId, student.firstName, student.lastName, student.instituteName, student.number, student.gender, student.amount,
-                    student.address, student.vacancy, student.roomType, student.age, student.distance, student.tellAbout
-            };
-            tableModel.addRow(row);
-        }
-    }
-
-    public List<Student> getStudents() {
-        List<Student> students = new ArrayList<>();
-        try {
-            new dbconnect();
-            Connection connection = dbconnect.connection; // Assuming dbconnect.connection is already available
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM students");
-
-            while (resultSet.next()) {
-                String studentID = resultSet.getString("studentid");
-                String requestId = resultSet.getString("id");
-                String firstName = resultSet.getString("first_name");
-                String lastName = resultSet.getString("last_name");
-                String instituteName = resultSet.getString("institute_name");
-                String number = resultSet.getString("mobile_no");
-                String gender = resultSet.getString("gender");
-                String amount = resultSet.getString("amount");
-
-                // Summarizing the address
-                String streetName = resultSet.getString("street_name");
-                String city = resultSet.getString("city");
-                String state = resultSet.getString("state");
-                String pinCode = resultSet.getString("pin_code");
-                String address = streetName + ", " + city + ", " + state + " - " + pinCode;
-
-                String vacancy = resultSet.getString("vacancy");
-                String roomType = resultSet.getString("room_typr"); // Fix typo to "room_type"
-                String age = resultSet.getString("age");
-                String distance = resultSet.getString("distance_college");
-                String tellAbout = resultSet.getString("tell_about");
-
-                // Add student data to the list
-                students.add(new Student(studentID,requestId, firstName, lastName, instituteName, number, gender, amount, address, vacancy, roomType, age, distance, tellAbout));
+    private void openAddRequestPage() {
+        System.out.println("openAddRequestPage method called"); // Debug print
+        SwingUtilities.invokeLater(() -> {
+            try {
+                AddRequest addRequestPage = new AddRequest(this.studentId);
+                addRequestPage.setVisible(true);
+                // Remove this line to keep StudentInformationPage open
+                // this.setVisible(false);
+                System.out.println("AddRequest page created and set visible"); // Debug print
+            } catch (Exception e) {
+                e.printStackTrace(); // Print any exceptions that occur
+                JOptionPane.showMessageDialog(this, "Error opening Add Request page: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return students;
-    }
-
-    // Custom renderer for the ComboBox to show placeholder
-    class ComboBoxRenderer extends JLabel implements ListCellRenderer<Object> {
-
-        private String placeholder;
-
-        public ComboBoxRenderer(String placeholder) {
-            this.placeholder = placeholder;
-        }
-
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            if (value == null || value.equals("")) {
-                setText(placeholder);
-            } else {
-                setText(value.toString());
-            }
-
-            if (isSelected) {
-//              setBackground(list.getSelectionBackground
-
-                setBackground(list.getSelectionBackground());
-                setForeground(list.getSelectionForeground());
-            } else {
-                setBackground(list.getBackground());
-                setForeground(list.getForeground());
-            }
-
-            setOpaque(true);
-            return this;
-        }
-    }
-
-    // Method to handle the interested button click
-    private void markAsInterested() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow != -1) {
-            String studentId = (String) table.getValueAt(selectedRow, 0);  // Assuming ID is in the first column
-//            storeStudentIdInDatabase(studentId, "interested");
-            try{
-                new dbconnect();
-                Connection connection = dbconnect.connection; // Assuming dbconnect.connection is already available
-                Statement statement = connection.createStatement();
-                ResultSet resultset = statement.executeQuery("select * from user");
-                String str = "";
-                while (resultset.next()) {
-                    if(resultset.getString("userid").equals(studentId)){
-                        str = resultset.getString("message");
-                        break;
-                    }
-                }
-                if(str.equals("null")){
-                    str = "";
-                }
-                str = str+"*"+studentid;
-                PreparedStatement pre = connection.prepareStatement(
-                        "UPDATE user SET message = ? WHERE userid = ?"
-                );
-                pre.setString(1, str); // Set the new value for the column
-                pre.setString(2, studentId); // Set the condition value
-                pre.executeUpdate();
-                JOptionPane.showMessageDialog(this, "Request send Sucessfully");
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error While sending the Request");
-            }
-
-        } else {
-            JOptionPane.showMessageDialog(this, "Please select a student first.");
-        }
-    }
-
-    // Method to handle the favorite button click
-    private void markAsFavorite() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow != -1) {
-            String requestId = (String) table.getValueAt(selectedRow, 1);  // Assuming ID is in the first column
-//            System.out.println(studentId);
-//            storeStudentIdInDatabase(studentId, "favorite");
-            try{
-                new dbconnect();
-                Connection connection = dbconnect.connection; // Assuming dbconnect.connection is already available
-                Statement statement = connection.createStatement();
-                ResultSet resultset = statement.executeQuery("select * from user");
-                String str = "";
-                while (resultset.next()) {
-                    if(resultset.getString("userid").equals(studentid)){
-                        str = resultset.getString("favorite");
-//                        System.out.println(str);
-                        break;
-                    }
-                }
-                if(str.equals("null")){
-                    str = "";
-                }
-                str = str+"*"+requestId;
-                PreparedStatement pre = connection.prepareStatement(
-                        "UPDATE user SET favorite = ? WHERE userid = ?"
-                );
-                pre.setString(1, str); // Set the new value for the column
-                pre.setString(2, studentid); // Set the condition value
-                pre.executeUpdate();
-                JOptionPane.showMessageDialog(this, "Student added to Favorite");
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error adding student to Favorite");
-            }
-
-        } else {
-            JOptionPane.showMessageDialog(this, "Please select a student first.");
-        }
-    }
-
-    // Method to store student ID in the database
-    private void storeStudentIdInDatabase(String studentId, String type) {
-        try {
-            new dbconnect();
-            Connection connection = dbconnect.connection;
-            String query = "";
-            if (type.equals("interested")) {
-                query = "INSERT INTO interested_students (student_id) VALUES (?)";
-            } else if (type.equals("favorite")) {
-                query = "INSERT INTO favorite_students (student_id) VALUES (?)";
-            }
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, studentId);
-            preparedStatement.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Student added to " + type);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error adding student to " + type);
-        }
+        });
     }
 
     public static void main(String[] args) {
-        new StudentInformationPage("789897");
+        String studentId = ""; // Define and initialize the studentId variable
+        SwingUtilities.invokeLater(() -> new StudentInformationPage(studentId));
     }
 }

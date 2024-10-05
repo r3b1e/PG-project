@@ -5,8 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.Random;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-public class signup extends JFrame implements ActionListener {
+public class Signup extends JFrame implements ActionListener {
     JButton submitButton;
     JButton resetButton;
     JTextField namefield;
@@ -15,167 +18,160 @@ public class signup extends JFrame implements ActionListener {
     JComboBox<String> genderComboBox;
     JPasswordField passwordfield;
     JPasswordField confirmfield;
+    private Color primaryColor = new Color(41, 128, 185);
+    private Color secondaryColor = new Color(52, 152, 219);
+    private Color accentColor = new Color(230, 126, 34);
+    JButton backButton;
 
-    public signup() {
+    public Signup() {
+        // Set custom shape and size for the frame
+        setUndecorated(true);
+        setShape(new RoundRectangle2D.Double(0, 0, 500, 600, 20, 20));
+        setSize(500, 600);
+
+        // Center the frame on the screen
+        setLocationRelativeTo(null);
+
+        // Create gradient background
+        JPanel backgroundPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                LinearGradientPaint gradient = new LinearGradientPaint(
+                    new Point(0, 0), new Point(0, getHeight()),
+                    new float[]{0f, 1f},
+                    new Color[]{primaryColor, secondaryColor}
+                );
+                g2d.setPaint(gradient);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        backgroundPanel.setLayout(null);
+        setContentPane(backgroundPanel);
+
         // Header Label
-        JLabel pgroom = new JLabel();
-        pgroom.setBounds(0, 0, 400, 40);
-        pgroom.setBackground(Color.CYAN);
-        pgroom.setOpaque(true);
-        pgroom.setText("PG ROOM");
-        pgroom.setFont(new Font(Font.SERIF, Font.BOLD, 30));
+        JLabel pgroom = new JLabel("PG ROOM");
+        pgroom.setBounds(0, 20, 500, 60);
+        pgroom.setFont(new Font("Arial", Font.BOLD, 36));
+        pgroom.setForeground(Color.WHITE);
         pgroom.setHorizontalAlignment(JLabel.CENTER);
 
         // Sign Up Label
-        JLabel signupicon = new JLabel();
-        signupicon.setBounds(0, 50, 400, 30);
-        signupicon.setBackground(Color.CYAN);
-        signupicon.setOpaque(true);
-        signupicon.setText("Sign Up");
-        signupicon.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        signupicon.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+        JLabel signupicon = new JLabel("Sign Up");
+        signupicon.setBounds(0, 80, 500, 40);
+        signupicon.setFont(new Font("Arial", Font.BOLD, 28));
+        signupicon.setForeground(Color.WHITE);
+        signupicon.setHorizontalAlignment(JLabel.CENTER);
 
-        // Name Label
-        JLabel fullnameLabel = new JLabel();
-        fullnameLabel.setBounds(20, 90, 100, 30);
-        fullnameLabel.setText("Name:");
-        fullnameLabel.setFont(new Font(Font.SERIF, Font.BOLD, 15));
+        // Input fields and labels
+        JLabel[] labels = {
+            new JLabel("Name:"),
+            new JLabel("Email:"),
+            new JLabel("Mobile:"),
+            new JLabel("Gender:"),
+            new JLabel("Password:"),
+            new JLabel("Confirm Password:")
+        };
 
-        // Name Field with rounded border
-        namefield = new JTextField();
-        namefield.setBounds(150, 90, 230, 30);
-        namefield.setFont(new Font(Font.SERIF, Font.PLAIN, 14));
-        namefield.setBorder(new RoundedBorder(10)); // Rounded border
+        JComponent[] fields = {
+            namefield = new JTextField(),
+            emailfield = new JTextField(),
+            mobilefield = new JTextField(),
+            genderComboBox = new JComboBox<>(new String[]{"Select", "Male", "Female", "Other"}),
+            passwordfield = new JPasswordField(),
+            confirmfield = new JPasswordField()
+        };
 
-        // Email Label
-        JLabel emailLabel = new JLabel();
-        emailLabel.setBounds(20, 130, 100, 30);
-        emailLabel.setText("Email:");
-        emailLabel.setFont(new Font(Font.SERIF, Font.BOLD, 15));
+        int startY = 140;
+        int gap = 60;
 
-        // Email Field with rounded border
-        emailfield = new JTextField();
-        emailfield.setBounds(150, 130, 230, 30);
-        emailfield.setFont(new Font(Font.SERIF, Font.PLAIN, 14));
-        emailfield.setBorder(new RoundedBorder(10)); // Rounded border
+        for (int i = 0; i < labels.length; i++) {
+            labels[i].setBounds(50, startY + i * gap, 150, 30);
+            labels[i].setFont(new Font("Arial", Font.BOLD, 16));
+            labels[i].setForeground(Color.WHITE);
+            add(labels[i]);
 
-        // Mobile Number Label
-        JLabel mobileLabel = new JLabel();
-        mobileLabel.setBounds(20, 170, 100, 30);
-        mobileLabel.setText("Mobile:");
-        mobileLabel.setFont(new Font(Font.SERIF, Font.BOLD, 15));
-
-        // Mobile Number Field with rounded border
-        mobilefield = new JTextField();
-        mobilefield.setBounds(150, 170, 230, 30);
-        mobilefield.setFont(new Font(Font.SERIF, Font.PLAIN, 14));
-        mobilefield.setBorder(new RoundedBorder(10)); // Rounded border
-
-        // Gender Label
-        JLabel genderLabel = new JLabel();
-        genderLabel.setBounds(20, 210, 100, 30);
-        genderLabel.setText("Gender:");
-        genderLabel.setFont(new Font(Font.SERIF, Font.BOLD, 15));
-
-        // Gender ComboBox with rounded border
-        String[] genders = {"Select", "Male", "Female", "Other"};
-        genderComboBox = new JComboBox<>(genders);
-        genderComboBox.setBounds(150, 210, 230, 30);
-        genderComboBox.setBackground(Color.white);
-        genderComboBox.setFont(new Font(Font.SERIF, Font.PLAIN, 14));
-        genderComboBox.setBorder(new RoundedBorder(10)); // Rounded border
-
-        // Password Label
-        JLabel passwordLabel = new JLabel();
-        passwordLabel.setBounds(20, 250, 120, 30);
-        passwordLabel.setText("Password:");
-        passwordLabel.setFont(new Font(Font.SERIF, Font.BOLD, 15));
-
-        // Password Field with rounded border
-        passwordfield = new JPasswordField();
-        passwordfield.setBounds(150, 250, 230, 30);
-        passwordfield.setFont(new Font(Font.SERIF, Font.PLAIN, 14));
-        passwordfield.setBorder(new RoundedBorder(10)); // Rounded border
-
-        // Confirm Password Label
-        JLabel confirmLabel = new JLabel();
-        confirmLabel.setBounds(20, 290, 150, 30);
-        confirmLabel.setText("Confirm Password:");
-        confirmLabel.setFont(new Font(Font.SERIF, Font.BOLD, 15));
-
-        // Confirm Password Field with rounded border
-        confirmfield = new JPasswordField();
-        confirmfield.setBounds(150, 290, 230, 30);
-        confirmfield.setFont(new Font(Font.SERIF, Font.PLAIN, 14));
-        confirmfield.setBorder(new RoundedBorder(10)); // Rounded border
+            fields[i].setBounds(200, startY + i * gap, 250, 40);
+            fields[i].setFont(new Font("Arial", Font.PLAIN, 14));
+            fields[i].setBackground(new Color(255, 255, 255, 220));
+            fields[i].setBorder(new RoundedBorder(20));
+            add(fields[i]);
+        }
 
         // Buttons
-        submitButton = new JButton("Sign in");
-        resetButton = new JButton("Reset");
-        submitButton.setBounds(100, 330, 100, 30);
-        resetButton.setBounds(220, 330, 100, 30);
-        resetButton.setBorder(new RoundedBorder(10));
-        submitButton.setBorder(new RoundedBorder(10));
-        submitButton.setBackground(Color.WHITE);
-        resetButton.setBackground(Color.WHITE);
+        submitButton = createStyledButton("Sign Up", accentColor);
+        resetButton = createStyledButton("Reset", new Color(231, 76, 60));
+        submitButton.setBounds(100, 520, 140, 50);
+        resetButton.setBounds(260, 520, 140, 50);
 
         submitButton.addActionListener(this);
         resetButton.addActionListener(this);
 
-        // Set up the frame
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(400, 400);  // Increased height to accommodate the mobile number field
-        this.setTitle("PG ROOM");
-        this.setLayout(null);
-        this.setResizable(false);
+        // Close button
+        JButton closeButton = createStyledButton("X", new Color(231, 76, 60));
+        closeButton.setBounds(450, 10, 40, 40);
+        closeButton.addActionListener(e -> System.exit(0));
 
-        // Add components to frame
-        this.add(pgroom);
-        this.add(signupicon);
-        this.add(fullnameLabel);
-        this.add(namefield);
-        this.add(emailLabel);
-        this.add(emailfield);
-        this.add(mobileLabel);
-        this.add(mobilefield);   // Added mobile number field
-        this.add(genderLabel);
-        this.add(genderComboBox);
-        this.add(passwordLabel);
-        this.add(passwordfield);
-        this.add(confirmLabel);
-        this.add(confirmfield);
-        this.add(submitButton);
-        this.add(resetButton);
+        // Back button
+        backButton = createStyledButton("←", new Color(52, 152, 219));
+        backButton.setBounds(10, 10, 40, 40);
+        backButton.addActionListener(this);
+        backButton.setToolTipText("Back to Login");
+
+        // Add back button to the frame
+        add(backButton);
+
+        // Add components
+        add(pgroom);
+        add(signupicon);
+        add(submitButton);
+        add(resetButton);
+        add(closeButton);
+
+        // Set frame properties
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("PG ROOM");
+        setResizable(false);
 
         // Set frame icon
         ImageIcon pgimage = new ImageIcon("pg.png");
-        this.setIconImage(pgimage.getImage());
+        setIconImage(pgimage.getImage());
 
-        this.setVisible(true);
+        setVisible(true);
+    }
+
+    private JButton createStyledButton(String text, Color bgColor) {
+        JButton button = new JButton(text);
+        button.setBackground(bgColor);
+        button.setForeground(Color.WHITE);
+        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setBorder(new RoundedBorder(25));
+        button.setFocusPainted(false);
+        return button;
     }
 
     // Action Listener
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == submitButton) {
+            System.out.println("Submit button clicked"); // Debug statement
             String name = namefield.getText();
             String email = emailfield.getText();
-            String mobile = mobilefield.getText();  // Get mobile number
+            String mobile = mobilefield.getText();
             String gender = (String) genderComboBox.getSelectedItem();
             String password = new String(passwordfield.getPassword());
             String confirmPassword = new String(confirmfield.getPassword());
 
-            if (name.isEmpty() || email.isEmpty() || mobile.isEmpty() || gender.equals("Select") || password.isEmpty() || !password.equals(confirmPassword)) {
-                JOptionPane.showMessageDialog(this, "Please fill in all fields correctly.");
-            }
-            else{
+            System.out.println("Validating inputs"); // Debug statement
+            if (validateInputs(name, email, mobile, gender, password, confirmPassword)) {
+                System.out.println("Inputs validated successfully"); // Debug statement
                 try {
-                    new dbconnect();
-                    Statement statement = dbconnect.statement;
-                    Connection connection = dbconnect.connection;
-                    ResultSet resultset = statement.executeQuery("SELECT * FROM user");
+                    System.out.println("Attempting database connection"); // Debug statement
+                    new DBConnect();
+                    Connection connection = DBConnect.connection;
                     PreparedStatement pre = connection.prepareStatement(
-                            "INSERT INTO user (userid, username, password, email, mobileno)VALUES (?, ?, ?, ?, ?)"
+                            "INSERT INTO user (userid, username, password, email, mobileno) VALUES (?, ?, ?, ?, ?)"
                     );
                     Random random = new Random();
                     int randomNumber = 100000 + random.nextInt(900000);
@@ -184,52 +180,80 @@ public class signup extends JFrame implements ActionListener {
                     pre.setString(3, password);
                     pre.setString(4, email);
                     pre.setString(5, mobile);
+                    System.out.println("Executing database insert"); // Debug statement
                     pre.executeUpdate();
+                    
+                    System.out.println("Database insert successful"); // Debug statement
+                    // Show success popup outside of try-catch
+                    JOptionPane.showMessageDialog(this, "Sign up successful! You can now log in.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    
+                    System.out.println("Closing signup window"); // Debug statement
+                    // Close the signup window and open the login window
                     dispose();
-                    new login();
-                }
-                catch(SQLException e1){
+                    new Login();
+                } catch(SQLException e1) {
                     e1.printStackTrace();
+                    System.out.println("Database error: " + e1.getMessage()); // Debug statement
+                    JOptionPane.showMessageDialog(this, "Error occurred while signing up: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    return; // Exit the method if there's an error
                 }
+            } else {
+                System.out.println("Input validation failed"); // Debug statement
             }
         } else if (e.getSource() == resetButton) {
             namefield.setText("");
             emailfield.setText("");
-            mobilefield.setText("");  // Clear mobile field
+            mobilefield.setText("");
             genderComboBox.setSelectedIndex(0);
             passwordfield.setText("");
             confirmfield.setText("");
+        } else if (e.getSource() == backButton) {
+            // Open login page and close current signup page
+            new Login();
+            this.dispose();
         }
     }
 
+    private boolean validateInputs(String name, String email, String mobile, String gender, String password, String confirmPassword) {
+        if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Name cannot be empty.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        if (email.isEmpty() || !email.contains("@")) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid email address.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        if (mobile.isEmpty() || !mobile.matches("\\d{10}")) {
+            JOptionPane.showMessageDialog(this, "Mobile number must be 10 digits.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        if (gender.equals("Select")) {
+            JOptionPane.showMessageDialog(this, "Please select a gender.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        if (password.isEmpty() || !password.equals(confirmPassword)) {
+            JOptionPane.showMessageDialog(this, "Passwords do not match.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        // Improved password validation
+        if (password.length() < 8 || password.length() > 16) {
+            JOptionPane.showMessageDialog(this, "Password must be between 8 and 16 characters long.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) {
+            JOptionPane.showMessageDialog(this, "Password must contain at least one special character.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
     public static void main(String[] args) {
-        new signup();
+        new Signup();
     }
 }
 
-// Rounded Border class for custom field borders
-class RoundedBorder extends AbstractBorder {
+class CustomRoundedBorder extends AbstractBorder {
     private int radius;
 
-    public RoundedBorder(int radius) {
-        this.radius = radius;
-    }
-
-    @Override
-    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-        g.setColor(Color.GRAY);
-        g.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
-    }
-
-    @Override
-    public Insets getBorderInsets(Component c) {
-        return new Insets(5, 10, 5, 10);
-    }
-
-    @Override
-    public Insets getBorderInsets(Component c, Insets insets) {
-        insets.left = insets.right = 10;
-        insets.top = insets.bottom = 5;
-        return insets;
-    }
+    // ... existing code ...
 }
