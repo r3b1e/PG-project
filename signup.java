@@ -6,24 +6,21 @@ import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.Random;
 import java.awt.geom.RoundRectangle2D;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class Signup extends JFrame implements ActionListener {
-    JButton submitButton;
-    JButton resetButton;
-    JTextField namefield;
-    JTextField emailfield;
-    JTextField mobilefield;  // New mobile field
+    JButton submitButton, resetButton, backButton;
+    JTextField namefield, emailfield, mobilefield;
     JComboBox<String> genderComboBox;
-    JPasswordField passwordfield;
-    JPasswordField confirmfield;
+    JPasswordField passwordfield, confirmfield;
     private Color primaryColor = new Color(41, 128, 185);
-    private Color secondaryColor = new Color(52, 152, 219);
+    // private Color secondaryColor = new Color(52, 152, 219);
     private Color accentColor = new Color(230, 126, 34);
-    JButton backButton;
 
     public Signup() {
+        initComponents();
+    }
+
+    private void initComponents() {
         // Set custom shape and size for the frame
         setUndecorated(true);
         setShape(new RoundRectangle2D.Double(0, 0, 500, 600, 20, 20));
@@ -38,12 +35,7 @@ public class Signup extends JFrame implements ActionListener {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
-                LinearGradientPaint gradient = new LinearGradientPaint(
-                    new Point(0, 0), new Point(0, getHeight()),
-                    new float[]{0f, 1f},
-                    new Color[]{primaryColor, secondaryColor}
-                );
-                g2d.setPaint(gradient);
+                g2d.setColor(primaryColor);
                 g2d.fillRect(0, 0, getWidth(), getHeight());
             }
         };
@@ -66,21 +58,21 @@ public class Signup extends JFrame implements ActionListener {
 
         // Input fields and labels
         JLabel[] labels = {
-            new JLabel("Name:"),
-            new JLabel("Email:"),
-            new JLabel("Mobile:"),
-            new JLabel("Gender:"),
-            new JLabel("Password:"),
-            new JLabel("Confirm Password:")
+                new JLabel("Name:"),
+                new JLabel("Email:"),
+                new JLabel("Mobile:"),
+                new JLabel("Gender:"),
+                new JLabel("Password:"),
+                new JLabel("Confirm Password:")
         };
 
         JComponent[] fields = {
-            namefield = new JTextField(),
-            emailfield = new JTextField(),
-            mobilefield = new JTextField(),
-            genderComboBox = new JComboBox<>(new String[]{"Select", "Male", "Female", "Other"}),
-            passwordfield = new JPasswordField(),
-            confirmfield = new JPasswordField()
+                namefield = new JTextField(),
+                emailfield = new JTextField(),
+                mobilefield = new JTextField(),
+                genderComboBox = new JComboBox<>(new String[]{"Select", "Male", "Female", "Other"}),
+                passwordfield = new JPasswordField(),
+                confirmfield = new JPasswordField()
         };
 
         int startY = 140;
@@ -95,7 +87,7 @@ public class Signup extends JFrame implements ActionListener {
             fields[i].setBounds(200, startY + i * gap, 250, 40);
             fields[i].setFont(new Font("Arial", Font.PLAIN, 14));
             fields[i].setBackground(new Color(255, 255, 255, 220));
-            fields[i].setBorder(new RoundedBorder(20));
+            fields[i].setBorder(new RoundedBorder(20, Color.LIGHT_GRAY));
             add(fields[i]);
         }
 
@@ -119,10 +111,8 @@ public class Signup extends JFrame implements ActionListener {
         backButton.addActionListener(this);
         backButton.setToolTipText("Back to Login");
 
-        // Add back button to the frame
-        add(backButton);
-
         // Add components
+        add(backButton);
         add(pgroom);
         add(signupicon);
         add(submitButton);
@@ -146,7 +136,7 @@ public class Signup extends JFrame implements ActionListener {
         button.setBackground(bgColor);
         button.setForeground(Color.WHITE);
         button.setFont(new Font("Arial", Font.BOLD, 16));
-        button.setBorder(new RoundedBorder(25));
+        button.setBorder(new RoundedBorder(25, Color.DARK_GRAY));
         button.setFocusPainted(false);
         return button;
     }
@@ -155,7 +145,6 @@ public class Signup extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == submitButton) {
-            System.out.println("Submit button clicked"); // Debug statement
             String name = namefield.getText();
             String email = emailfield.getText();
             String mobile = mobilefield.getText();
@@ -163,13 +152,9 @@ public class Signup extends JFrame implements ActionListener {
             String password = new String(passwordfield.getPassword());
             String confirmPassword = new String(confirmfield.getPassword());
 
-            System.out.println("Validating inputs"); // Debug statement
             if (validateInputs(name, email, mobile, gender, password, confirmPassword)) {
-                System.out.println("Inputs validated successfully"); // Debug statement
                 try {
-                    System.out.println("Attempting database connection"); // Debug statement
-                    new DBConnect();
-                    Connection connection = DBConnect.connection;
+                    Connection connection = DBConnect.getConnection();  // Assuming DBConnect class has a getConnection method
                     PreparedStatement pre = connection.prepareStatement(
                             "INSERT INTO user (userid, username, password, email, mobileno) VALUES (?, ?, ?, ?, ?)"
                     );
@@ -180,25 +165,17 @@ public class Signup extends JFrame implements ActionListener {
                     pre.setString(3, password);
                     pre.setString(4, email);
                     pre.setString(5, mobile);
-                    System.out.println("Executing database insert"); // Debug statement
                     pre.executeUpdate();
-                    
-                    System.out.println("Database insert successful"); // Debug statement
-                    // Show success popup outside of try-catch
-                    JOptionPane.showMessageDialog(this, "Sign up successful! You can now log in.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    
-                    System.out.println("Closing signup window"); // Debug statement
-                    // Close the signup window and open the login window
+
+                    JOptionPane.showMessageDialog(this, "Sign up successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
                     dispose();
-                    new Login();
-                } catch(SQLException e1) {
+                    new Login();  // Assuming Login class exists
+
+                } catch (SQLException e1) {
                     e1.printStackTrace();
-                    System.out.println("Database error: " + e1.getMessage()); // Debug statement
-                    JOptionPane.showMessageDialog(this, "Error occurred while signing up: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    return; // Exit the method if there's an error
+                    JOptionPane.showMessageDialog(this, "Error occurred while signing up.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-            } else {
-                System.out.println("Input validation failed"); // Debug statement
             }
         } else if (e.getSource() == resetButton) {
             namefield.setText("");
@@ -208,15 +185,14 @@ public class Signup extends JFrame implements ActionListener {
             passwordfield.setText("");
             confirmfield.setText("");
         } else if (e.getSource() == backButton) {
-            // Open login page and close current signup page
             new Login();
-            this.dispose();
+            dispose();
         }
     }
 
     private boolean validateInputs(String name, String email, String mobile, String gender, String password, String confirmPassword) {
         if (name.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Name cannot be empty.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please enter your name.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
             return false;
         }
         if (email.isEmpty() || !email.contains("@")) {
@@ -235,25 +211,41 @@ public class Signup extends JFrame implements ActionListener {
             JOptionPane.showMessageDialog(this, "Passwords do not match.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
             return false;
         }
-        // Improved password validation
-        if (password.length() < 8 || password.length() > 16) {
-            JOptionPane.showMessageDialog(this, "Password must be between 8 and 16 characters long.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-        if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) {
-            JOptionPane.showMessageDialog(this, "Password must contain at least one special character.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
         return true;
     }
 
     public static void main(String[] args) {
-        new Signup();
+        SwingUtilities.invokeLater(Signup::new);
     }
-}
 
-class CustomRoundedBorder extends AbstractBorder {
-    private int radius;
+    // Custom RoundedBorder class for fields and buttons with simple solid color
+    private static class RoundedBorder extends AbstractBorder {
+        private final int radius;
+        private final Color borderColor;
 
-    // ... existing code ...
+        public RoundedBorder(int radius, Color borderColor) {
+            this.radius = radius;
+            this.borderColor = borderColor;
+        }
+
+        @Override
+        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(borderColor);
+            g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
+            g2.dispose();
+        }
+
+        @Override
+        public Insets getBorderInsets(Component c) {
+            return new Insets(radius, radius, radius, radius);
+        }
+
+        @Override
+        public Insets getBorderInsets(Component c, Insets insets) {
+            insets.left = insets.right = insets.top = insets.bottom = radius;
+            return insets;
+        }
+    }
 }

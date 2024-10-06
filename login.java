@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
 import java.awt.geom.RoundRectangle2D;
+import java.awt.LinearGradientPaint;
+import javax.swing.border.LineBorder;
 
 public class Login extends JFrame implements ActionListener {
     JTextField namefield;
@@ -59,11 +61,11 @@ public class Login extends JFrame implements ActionListener {
         usernameLabel.setFont(new Font("Arial", Font.BOLD, 16));
         usernameLabel.setForeground(Color.WHITE);
 
-        namefield = new JTextField();
+        namefield = createStyledTextField("Username");
         namefield.setBounds(50, 170, 300, 40);
         namefield.setFont(new Font("Arial", Font.PLAIN, 14));
         namefield.setBackground(new Color(255, 255, 255, 220));
-        namefield.setBorder(new RoundedBorder(20));
+        namefield.setBorder(new LineBorder(new Color(41, 128, 185), 2, true));
 
         // Password field
         JLabel passwordLabel = new JLabel("Password:");
@@ -71,11 +73,11 @@ public class Login extends JFrame implements ActionListener {
         passwordLabel.setFont(new Font("Arial", Font.BOLD, 16));
         passwordLabel.setForeground(Color.WHITE);
 
-        passwordfield = new JPasswordField();
+        passwordfield = createStyledPasswordField("Password");
         passwordfield.setBounds(50, 250, 300, 40);
         passwordfield.setFont(new Font("Arial", Font.PLAIN, 14));
         passwordfield.setBackground(new Color(255, 255, 255, 220));
-        passwordfield.setBorder(new RoundedBorder(20));
+        passwordfield.setBorder(new LineBorder(new Color(41, 128, 185), 2, true));
 
         // Buttons
         loginbutton = createStyledButton("Login", accentColor);
@@ -86,10 +88,11 @@ public class Login extends JFrame implements ActionListener {
         loginbutton.addActionListener(this);
         signupbutton.addActionListener(this);
 
-        // Close button
+        // Add close button
         JButton closeButton = createStyledButton("X", new Color(231, 76, 60));
         closeButton.setBounds(350, 10, 40, 40);
         closeButton.addActionListener(e -> System.exit(0));
+        add(closeButton);
 
         // Add components
         add(pgroom);
@@ -100,7 +103,6 @@ public class Login extends JFrame implements ActionListener {
         add(passwordfield);
         add(loginbutton);
         add(signupbutton);
-        add(closeButton);
 
         // Set frame properties
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -114,12 +116,36 @@ public class Login extends JFrame implements ActionListener {
         setVisible(true);
     }
 
+    private JTextField createStyledTextField(String placeholder) {
+        JTextField textField = new JTextField(placeholder);
+        textField.setFont(new Font("Arial", Font.PLAIN, 16));
+        textField.setForeground(Color.GRAY);
+        textField.setBorder(BorderFactory.createCompoundBorder(
+            new RoundedBorder(15, new Color(200, 200, 200)),
+            BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        ));
+        textField.setOpaque(false);
+        return textField;
+    }
+
+    private JPasswordField createStyledPasswordField(String placeholder) {
+        JPasswordField passwordField = new JPasswordField(placeholder);
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 16));
+        passwordField.setForeground(Color.GRAY);
+        passwordField.setBorder(BorderFactory.createCompoundBorder(
+            new RoundedBorder(15, new Color(200, 200, 200)),
+            BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        ));
+        passwordField.setOpaque(false);
+        return passwordField;
+    }
+
     private JButton createStyledButton(String text, Color bgColor) {
         JButton button = new JButton(text);
         button.setBackground(bgColor);
         button.setForeground(Color.WHITE);
         button.setFont(new Font("Arial", Font.BOLD, 16));
-        button.setBorder(new RoundedBorder(25));
+        button.setBorder(new LineBorder(Color.WHITE, 2, true));
         button.setFocusPainted(false);
         return button;
     }
