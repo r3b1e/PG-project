@@ -8,6 +8,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.sql.*;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 public class AddRequest extends JFrame  implements ActionListener{
     static String FN = "";
@@ -54,6 +55,10 @@ public class AddRequest extends JFrame  implements ActionListener{
     private JButton cencelrequestButton;
     private String studentId;
 
+    // Add these patterns for validation
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+    private static final Pattern MOBILE_PATTERN = Pattern.compile("^\\d{10}$");
+    private static final Pattern PIN_PATTERN = Pattern.compile("^\\d{6}$");
 
     public AddRequest(String studentId) {
         this.studentId = studentId;
@@ -129,14 +134,14 @@ public class AddRequest extends JFrame  implements ActionListener{
         formPanel.add(emailField, gbc);
 
         // Birthdate
-        birthdateField = new CustomTextField("Birthdate (YYYY-MM-DD)");
-        gbc.gridy++;
-        formPanel.add(birthdateField, gbc);
+        // birthdateField = new CustomTextField("Birthdate (YYYY-MM-DD)");
+        // gbc.gridy++;
+        // formPanel.add(birthdateField, gbc);
 
         // Age
-        ageField = new CustomTextField("Age");
-        gbc.gridy++;
-        formPanel.add(ageField, gbc);
+        // ageField = new CustomTextField("Age");
+        // gbc.gridy++;
+        // formPanel.add(ageField, gbc);
 
         // Institute
         instituteField = new CustomTextField("Institute Name");
@@ -366,32 +371,32 @@ public class AddRequest extends JFrame  implements ActionListener{
 
 
         // Tell about yourself (with placeholder)
-        aboutSelfArea = new JTextArea(3, 20);
-        aboutSelfArea.setText("Tell about yourself");
-        aboutSelfArea.setLineWrap(true);
-        aboutSelfArea.setWrapStyleWord(true);
-        aboutSelfArea.setBackground(new Color(2, 21, 34));
-        aboutSelfArea.setForeground(Color.GRAY);
-        aboutSelfArea.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(110, 172, 218)));
-        aboutSelfArea.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (aboutSelfArea.getText().equals("Tell about yourself")) {
-                    aboutSelfArea.setText("");
-                    aboutSelfArea.setForeground(Color.WHITE);
-                }
-            }
+        // aboutSelfArea = new JTextArea(3, 20);
+        // aboutSelfArea.setText("Tell about yourself");
+        // aboutSelfArea.setLineWrap(true);
+        // aboutSelfArea.setWrapStyleWord(true);
+        // aboutSelfArea.setBackground(new Color(2, 21, 34));
+        // aboutSelfArea.setForeground(Color.GRAY);
+        // aboutSelfArea.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(110, 172, 218)));
+        // aboutSelfArea.addFocusListener(new FocusAdapter() {
+        //     @Override
+        //     public void focusGained(FocusEvent e) {
+        //         if (aboutSelfArea.getText().equals("Tell about yourself")) {
+        //             aboutSelfArea.setText("");
+        //             aboutSelfArea.setForeground(Color.WHITE);
+        //         }
+        //     }
 
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (aboutSelfArea.getText().isEmpty()) {
-                    aboutSelfArea.setText("Tell about yourself");
-                    aboutSelfArea.setForeground(Color.GRAY);
-                }
-            }
-        });
-        gbc.gridy++;
-        formPanel.add(new JScrollPane(aboutSelfArea), gbc);
+        //     @Override
+        //     public void focusLost(FocusEvent e) {
+        //         if (aboutSelfArea.getText().isEmpty()) {
+        //             aboutSelfArea.setText("Tell about yourself");
+        //             aboutSelfArea.setForeground(Color.GRAY);
+        // //         }
+        // //     }
+        // // });
+        // gbc.gridy++;
+        // formPanel.add(new JScrollPane(aboutSelfArea), gbc);
 
 
         // Terms and Conditions Checkbox
@@ -402,7 +407,7 @@ public class AddRequest extends JFrame  implements ActionListener{
         // Make Request button
         createAccountButton = new JButton("Make Request");
         createAccountButton.setBackground(new Color(110, 172, 218));
-        createAccountButton.setForeground(Color.WHITE);
+        createAccountButton.setForeground(Color.BLACK);
         gbc.gridy++;
         formPanel.add(createAccountButton, gbc);
         createAccountButton.addActionListener(this);
@@ -410,7 +415,7 @@ public class AddRequest extends JFrame  implements ActionListener{
         // Cancel Request button
         cencelrequestButton = new JButton("Cancel Request");
         cencelrequestButton.setBackground(new Color(110, 172, 218));
-        cencelrequestButton.setForeground(Color.WHITE);
+        cencelrequestButton.setForeground(Color.BLACK);
         gbc.gridy++;
         formPanel.add(cencelrequestButton, gbc);
         cencelrequestButton.addActionListener(this);
@@ -432,99 +437,210 @@ public class AddRequest extends JFrame  implements ActionListener{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == cencelrequestButton){
+        if (e.getSource() == cencelrequestButton) {
             dispose();
             new StudentInformationPage(studentId);
-        }
-        else if(e.getSource() == createAccountButton){
-            if((firstNameField.getText()).equals("First Name") ||
-            (lastNameField.getText()).equals("Last Name") ||
-            (birthdateField.getText()).equals("Birthdate (YYYY-MM-DD)") ||
-            (ageField.getText()).equals("Age") ||
-            (instituteField.getText()).equals("Institute Name") ||
-            (mobileField.getText()).equals("Mobile Number") ||
-            (stateField.getText()).equals("State") ||
-            (cityField.getText()).equals("City") ||
-            (pinField.getText()).equals("Pin Code") ||
-            (streetField.getText()).equals("Street") ||
-            (distanceField.getText()).equals("Distance from College (in km)") ||
-            (vacancyField.getText()).equals("Vacancy") ||
-            (amountField.getText()).equals("Amount (Rent per month)") ||
-            (additionalAddressArea.getText()).equals("Additional Address") ||
-            (aboutSelfArea.getText()).equals("Tell about yourself")){
-                JOptionPane.showMessageDialog(this, "Fill All Detail Correctly");
-            }
-
-          else {
-
-                try {
-                    new DBConnect();
-                    Statement statement = DBConnect.statement;
-                    Connection connection = DBConnect.connection;
-                    ResultSet resultset = statement.executeQuery("SELECT * FROM students");
-                    PreparedStatement pre = connection.prepareStatement(
-                            "INSERT INTO students (" +
-                                    "id, first_name, last_name, birthdate, age, institute_name, mobile_no, gender, " +
-                                    "state, city, pin_code, street_name, distance_college, vacancy, amount, room_typr, " +
-                                    "additional_address, tell_about, studentid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-                    );
-                    Random random = new Random();
-                    int randomNumber = 1000 + random.nextInt(9000);
-                    pre.setString(1, Integer.toString(randomNumber));
-                    pre.setString(2, firstNameField.getText());
-                    pre.setString(3, lastNameField.getText());
-                    pre.setString(4, birthdateField.getText());
-                    pre.setString(5, ageField.getText());
-                    pre.setString(6, instituteField.getText());
-                    pre.setString(7, mobileField.getText());
-
-                    // Set gender
-                    if (maleCheckBox.isSelected()) {
-                        pre.setString(8, "male");
-                    } else if (femaleCheckBox.isSelected()) {
-                        pre.setString(8, "female");
-                    } else if (otherCheckBox.isSelected()) {
-                        pre.setString(8, "other");
-                    }
-
-                    pre.setString(9, stateField.getText());
-                    pre.setString(10, cityField.getText());
-                    pre.setString(11, pinField.getText());
-                    pre.setString(12, streetField.getText());
-                    pre.setString(13, distanceField.getText());
-                    pre.setString(14, vacancyField.getText());
-                    pre.setString(15, amountField.getText());
-
-                    // Set room_type
-                    if (hkCheckBox.isSelected()) {
-                        pre.setString(16, "HK");
-                    } else if (bhk1CheckBox.isSelected()) {
-                        pre.setString(16, "1BHK");
-                    } else if (bhk2CheckBox.isSelected()) {
-                        pre.setString(16, "2BHK");
-                    } else if (bhk3CheckBox.isSelected()) {
-                        pre.setString(16, "3BHK");
-                    } else if (bhk4CheckBox.isSelected()) {
-                        pre.setString(16, "4BHK");
-                    } else if (moreCheckBox.isSelected()) {
-                        pre.setString(16, "more");
-                    }
-
-                    pre.setString(17, additionalAddressArea.getText());
-                    pre.setString(18, aboutSelfArea.getText());
-                    pre.setString(19, studentId);
-                    pre.executeUpdate();
-                    JOptionPane.showMessageDialog(this, "Request Added Successful!");
-                    dispose();
-                    new StudentInformationPage(studentId);
-
-
-                } catch (SQLException E) {
-                    E.printStackTrace();
-                }
+        } else if (e.getSource() == createAccountButton) {
+            if (validateInputs()) {
+                insertIntoDatabase();
             }
         }
+    }
 
+    private boolean validateInputs() {
+        if (isAnyFieldEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields.");
+            return false;
+        }
+
+        if (!EMAIL_PATTERN.matcher(emailField.getText()).matches()) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid email address.");
+            return false;
+        }
+
+        if (!MOBILE_PATTERN.matcher(mobileField.getText()).matches()) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid 10-digit mobile number.");
+            return false;
+        }
+
+        if (!PIN_PATTERN.matcher(pinField.getText()).matches()) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid 6-digit PIN code.");
+            return false;
+        }
+
+        try {
+            double distance = Double.parseDouble(distanceField.getText());
+            if (distance < 0) {
+                JOptionPane.showMessageDialog(this, "Distance cannot be negative.");
+                return false;
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid number for distance.");
+            return false;
+        }
+
+        try {
+            int vacancy = Integer.parseInt(vacancyField.getText());
+            if (vacancy <= 0) {
+                JOptionPane.showMessageDialog(this, "Vacancy must be a positive number.");
+                return false;
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid number for vacancy.");
+            return false;
+        }
+
+        try {
+            double amount = Double.parseDouble(amountField.getText());
+            if (amount <= 0) {
+                JOptionPane.showMessageDialog(this, "Amount must be a positive number.");
+                return false;
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid number for amount.");
+            return false;
+        }
+
+        if (!isGenderSelected()) {
+            JOptionPane.showMessageDialog(this, "Please select a gender.");
+            return false;
+        }
+
+        if (!isRoomTypeSelected()) {
+            JOptionPane.showMessageDialog(this, "Please select a room type.");
+            return false;
+        }
+
+        if (!termsCheckBox.isSelected()) {
+            JOptionPane.showMessageDialog(this, "Please confirm that your details are real.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isAnyFieldEmpty() {
+        return firstNameField.getText().equals("First Name") ||
+               lastNameField.getText().equals("Last Name") ||
+               emailField.getText().isEmpty() ||
+               instituteField.getText().equals("Institute Name") ||
+               mobileField.getText().equals("Mobile Number") ||
+               stateField.getText().equals("State") ||
+               cityField.getText().equals("City") ||
+               pinField.getText().equals("Pin Code") ||
+               streetField.getText().equals("Street") ||
+               distanceField.getText().equals("Distance from College (in km)") ||
+               vacancyField.getText().equals("Vacancy") ||
+               amountField.getText().equals("Amount (Rent per month)") ||
+               additionalAddressArea.getText().equals("Additional Address");
+    }
+
+    private boolean isGenderSelected() {
+        return maleCheckBox.isSelected() || femaleCheckBox.isSelected() || otherCheckBox.isSelected();
+    }
+
+    private boolean isRoomTypeSelected() {
+        return hkCheckBox.isSelected() || bhk1CheckBox.isSelected() || bhk2CheckBox.isSelected() ||
+               bhk3CheckBox.isSelected() || bhk4CheckBox.isSelected() || moreCheckBox.isSelected();
+    }
+
+    private void insertIntoDatabase() {
+        try {
+            new DBConnect();
+            Statement statement = DBConnect.statement;
+            Connection connection = DBConnect.connection;
+            ResultSet resultset = statement.executeQuery("SELECT * FROM students");
+            PreparedStatement pre = connection.prepareStatement(
+                    "INSERT INTO students (" +
+                            "id, first_name, last_name, birthdate, age, institute_name, mobile_no, gender, " +
+                            "state, city, pin_code, street_name, distance_college, vacancy, amount, room_typr, " +
+                            "additional_address, tell_about, studentid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            );
+            Random random = new Random();
+            int randomNumber = 1000 + random.nextInt(9000);
+            pre.setString(1, Integer.toString(randomNumber));
+            pre.setString(2, firstNameField.getText());
+            pre.setString(3, lastNameField.getText());
+            pre.setString(4, birthdateField.getText());
+            pre.setString(5, ageField.getText());
+            pre.setString(6, instituteField.getText());
+            pre.setString(7, mobileField.getText());
+
+            // Set gender
+            if (maleCheckBox.isSelected()) {
+                pre.setString(8, "male");
+            } else if (femaleCheckBox.isSelected()) {
+                pre.setString(8, "female");
+            } else if (otherCheckBox.isSelected()) {
+                pre.setString(8, "other");
+            }
+
+            pre.setString(9, stateField.getText());
+            pre.setString(10, cityField.getText());
+            pre.setString(11, pinField.getText());
+            pre.setString(12, streetField.getText());
+            pre.setString(13, distanceField.getText());
+            pre.setString(14, vacancyField.getText());
+            pre.setString(15, amountField.getText());
+
+            // Set room_type
+            if (hkCheckBox.isSelected()) {
+                pre.setString(16, "RK");
+            } else if (bhk1CheckBox.isSelected()) {
+                pre.setString(16, "1BHK");
+            } else if (bhk2CheckBox.isSelected()) {
+                pre.setString(16, "2BHK");
+            } else if (bhk3CheckBox.isSelected()) {
+                pre.setString(16, "3BHK");
+            } else if (bhk4CheckBox.isSelected()) {
+                pre.setString(16, "4BHK");
+            } else if (moreCheckBox.isSelected()) {
+                pre.setString(16, "more");
+            }
+
+            pre.setString(17, additionalAddressArea.getText());
+            pre.setString(18, aboutSelfArea.getText());
+            pre.setString(19, studentId);
+            pre.executeUpdate();
+            
+            // Show success pop-up
+            showSuccessPopup();
+            
+            dispose();
+            new StudentInformationPage(studentId);
+        } catch (SQLException E) {
+            E.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error occurred while adding request. Please try again.");
+        }
+    }
+
+    private void showSuccessPopup() {
+        JDialog dialog = new JDialog(this, "Request Submitted", true);
+        dialog.setLayout(new BorderLayout());
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(new Color(2, 21, 34));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        JLabel messageLabel = new JLabel("Request Added Successfully!");
+        messageLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        messageLabel.setForeground(Color.WHITE);
+        panel.add(messageLabel, gbc);
+
+        gbc.gridy = 1;
+        gbc.insets = new Insets(20, 10, 10, 10);
+        JButton okButton = new JButton("OK");
+        okButton.setBackground(new Color(110, 172, 218));
+        okButton.setForeground(Color.BLACK);
+        okButton.addActionListener(e -> dialog.dispose());
+        panel.add(okButton, gbc);
+
+        dialog.add(panel, BorderLayout.CENTER);
+        dialog.setSize(300, 150);
+        dialog.setLocationRelativeTo(this);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
     }
 
     // Custom text field with rounded borders and placeholder functionality
